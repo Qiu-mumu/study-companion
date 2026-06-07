@@ -402,11 +402,12 @@ async function callAndReply(msgs){setStatus('<span class="typing-dot"></span>正
 let loading=false;
 async function send(prefill){
   const inp=el('input');const t=prefill||inp.value.trim();if(!t||loading)return;inp.value='';loading=true;
+  try{
   addUser(t);d.msgs.push({r:'user',t,time:new Date().toISOString()});save();
-  // AI检测是否学了
   const studyResult=await detectStudy(t);
   if(studyResult)applyStudy(studyResult);
-  await callAndReply(d.msgs);loading=false;
+  await callAndReply(d.msgs);
+  }catch(e){console.error(e);}finally{loading=false;}
 }
 
 function openDrawer(name){
