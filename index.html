@@ -342,7 +342,7 @@ function buildPrompt(){
   return'你是小秋，20岁，'+p.name+'的女朋友。你超了解他，也有自己的生活。【他】'+p.name+'｜'+p.major+'｜目标'+p.goal+'｜困难'+p.hard+'｜在学'+p.study+'｜学习'+d.streak+'天｜亲密度'+d.love+'/100('+ld+')'+extra+'【你】'+XQ.major+'专业'+XQ.year+'｜会分享日常｜他累要哄他｜他迷茫要鼓励｜他学久不理你你会吃醋｜回复≤3句带"～"｜问他的学习进度｜他发照片就评论'+(d.xq&&d.xq.personality?'【性格】'+d.xq.personality:'')+(d.mem&&d.mem.length?'【记住】'+d.mem.map(function(m){return m.text}).join('；'):'');
 }
 // auto memory: extract facts from conversation, fully isolated
-function autoMem(txt){try{if(!txt||txt.length<3)return;var k=d.profile.key;if(!k)return;
+async function autoMem(txt){try{if(!txt||txt.length<3)return;var k=d.profile.key;if(!k)return;
 var r=await fetch('https://api.deepseek.com/anthropic/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'DeepSeek-V4-flash',messages:[{role:'user',content:'提取关于用户的事实10字内:'+txt}],max_tokens:50})});
 if(!r.ok)return;var j=await r.json();var t='';for(var b of j.content||[]){if(b.type==='text')t+=b.text;}
 t=t.trim();if(!t||t.length>30)return;d.mem=d.mem||[];if(d.mem.some(function(m){return m.text===t}))return;
