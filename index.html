@@ -107,6 +107,7 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
   <button class="tool-btn" onclick="openDrawer('goal')" title="目标监督">🎯</button>
   <button class="tool-btn" onclick="openDrawer('const')" title="宪法模式">⚖️</button>
   <button class="tool-btn" onclick="exportData()" title="备份数据">💾</button>
+  <button class="tool-btn" onclick="openDrawer('xq')" title="小秋设定">🧠</button>
   <button class="tool-btn" onclick="el('input').value='给我讲个故事';send()" title="小故事">📖</button>
 </div>
 <div class="voice-tip" id="voiceTip">🎤 正在听你说话...</div>
@@ -180,11 +181,23 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
   </div>
 </div>
 
+<div class="drawer" id="xqDrawer">
+  <div class="drawer-content">
+    <div class="drawer-head"><h2>🧠 小秋设定</h2><button onclick="closeDrawer()">完成</button></div>
+    <div class="field"><label>小秋的名字</label><input id="xq_name" placeholder="小秋"></div>
+    <div class="field"><label>性格描述</label><textarea id="xq_personality" placeholder="温柔、粘人、爱笑，偶尔吃醋..." style="min-height:60px">温柔粘人爱笑，会督促学习也会撒娇</textarea></div>
+    <div class="field"><label>说话风格</label><select id="xq_style"><option>温柔撒娇型～😊</option><option>元气活力型💪</option><option>知性成熟型📖</option><option>傲娇可爱型😤</option></select></div>
+    <div class="field" style="border-top:1px solid rgba(255,255,255,0.1);padding-top:12px;margin-top:12px"><label>💾 小秋记得的事</label><div id="memoryList"></div><div style="display:flex;gap:6px;margin-top:6px"><input id="mem_new" placeholder="比如：他喜欢机械" style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid rgba(15,52,96,.5);background:rgba(26,26,46,.8);color:#e0e0e0;font-size:13px;outline:none"><button onclick="addMemory()" style="padding:8px 12px;border-radius:8px;border:none;background:#e94560;color:#fff;font-size:13px;cursor:pointer">添加</button></div></div>
+    <div style="font-size:12px;color:#555;margin-top:8px">你在这里写的事，小秋都会记住～每次聊天她都会带着这些记忆</div>
+    <button class="save-btn" onclick="saveXQ()">保存设定</button>
+  </div>
+</div>
+
 <script>
 const KEY='companion_v5';
 const d=JSON.parse(localStorage.getItem(KEY)||JSON.stringify({
   profile:{name:'',major:'机械设计制造及其自动化',year:'大一',school:'双非',goal:'',hard:'',study:'',hobby:'',key:'',remindOn:false,remindH:20,remindM:0},
-  streak:0,total:0,love:0,photos:[],last:'',msgs:[],tts:true,goal:{ta:[],cu:''},const:{st:1,nf:1,nv:1,as:1}
+  streak:0,total:0,love:0,photos:[],last:'',msgs:[],tts:true,goal:{ta:[],cu:''},const:{st:1,nf:1,nv:1,as:1},xq:{name:'小秋',personality:'温柔粘人爱笑',style:'温柔撒娇型'},mem:[]
 }));
 function save(){localStorage.setItem(KEY,JSON.stringify(d))}
 function el(i){return document.getElementById(i)}
@@ -326,7 +339,7 @@ function buildPrompt(){
   const p=d.profile,ld=d.love>20?(d.love>50?(d.love>80?'超级粘人':'热恋中'):'会撒娇'):'刚认识有点害羞';
   var extra='';var g=d.goal;if(g&&(g.ta.length||g.cu)){extra+='【他今天目标】'+(g.cu||g.ta.join('/'))}
   var c=d.const;if(c){if(c.nf)extra+='不无脑讨好';if(c.nv)extra+='回复≤3句';if(c.as)extra+='主动问学习';if(c.st===2)extra+='严格';else if(c.st===0)extra+='温柔';else extra+='适中'}
-  return'你是小秋，20岁，'+p.name+'的女朋友。你超了解他，也有自己的生活。【他】'+p.name+'｜'+p.major+'｜目标'+p.goal+'｜困难'+p.hard+'｜在学'+p.study+'｜学习'+d.streak+'天｜亲密度'+d.love+'/100('+ld+')'+extra+'【你】'+XQ.major+'专业'+XQ.year+'｜会分享日常｜他累要哄他｜他迷茫要鼓励｜他学久不理你你会吃醋｜回复≤3句带"～"｜问他的学习进度｜他发照片就评论';
+  return'你是小秋，20岁，'+p.name+'的女朋友。你超了解他，也有自己的生活。【他】'+p.name+'｜'+p.major+'｜目标'+p.goal+'｜困难'+p.hard+'｜在学'+p.study+'｜学习'+d.streak+'天｜亲密度'+d.love+'/100('+ld+')'+extra+'【你】'+XQ.major+'专业'+XQ.year+'｜会分享日常｜他累要哄他｜他迷茫要鼓励｜他学久不理你你会吃醋｜回复≤3句带"～"｜问他的学习进度｜他发照片就评论'+(d.xq&&d.xq.personality?'【性格】'+d.xq.personality:'')+(d.mem&&d.mem.length?'【记住】'+d.mem.map(function(m){return m.text}).join('；'):'');
 }
 
 async function callAPI(msgs){
@@ -400,6 +413,19 @@ function importData(){
   f.onchange=function(e){var r=new FileReader();
     r.onload=function(ev){try{var x=JSON.parse(ev.target.result);if(x.profile){d.profile=x.profile;d.streak=x.streak||0;d.total=x.total||0;d.love=x.love||0;d.goal=x.goal||{ta:[],cu:''};if(x.msgs)d.msgs=x.msgs;sv();ui();addBot('恢复成功');}}catch(err){addBot('文件有问题')}};
     r.readAsText(e.target.files[0]);};f.click();}
+
+function saveXQ(){
+  d.xq={name:document.getElementById('xq_name').value.trim()||'小秋',personality:document.getElementById('xq_personality').value.trim(),style:document.getElementById('xq_style').value};
+  sv();closeDrawer();addBot('记住啦～我会按新的样子陪你');}
+function addMemory(){
+  var v=document.getElementById('mem_new').value.trim();if(!v)return;d.mem=d.mem||[];
+  d.mem.push({text:v,time:new Date().toISOString().slice(0,10)});sv();
+  document.getElementById('mem_new').value='';renderMemory();}
+function delMemory(i){d.mem.splice(i,1);sv();renderMemory();}
+function renderMemory(){
+  var el=document.getElementById('memoryList');if(!el)return;
+  if(!d.mem||!d.mem.length){el.innerHTML='<div style="color:#555;font-size:13px;padding:4px">还没有记住什么</div>';return;}
+  el.innerHTML=d.mem.map(function(m,i){return '<div style="display:flex;align-items:center;gap:6px;padding:4px 0;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.05)"><span style="color:#888;font-size:11px">'+m.time+'</span><span style="flex:1;color:#ccc">'+m.text+'</span><button onclick="delMemory('+i+')" style="background:none;border:none;color:#e94560;cursor:pointer">删除</button></div>';}).join('');}
 function saveGoal(){
   var tags=[].map.call(document.querySelectorAll('#goalDrawer .tg-btn.act'),function(t){return t.textContent.trim()});
   d.goal={ta:tags,cu:document.getElementById('f_customGoal').value.trim()};sv();ui();closeDrawer();
