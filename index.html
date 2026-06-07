@@ -2,362 +2,196 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
 <meta name="theme-color" content="#1a1a2e">
-<meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.json">
-<title>小秋 · AI 女友</title>
+<title>小秋</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);color:#e0e0e0;height:100vh;display:flex;flex-direction:column;overflow:hidden}
-.header{background:rgba(22,33,62,0.95);backdrop-filter:blur(10px);padding:12px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(15,52,96,0.5);flex-shrink:0}
-.avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#e94560,#0f3460);display:flex;align-items:center;justify-content:center;font-size:22px;position:relative;cursor:pointer}
-.avatar .dot{width:10px;height:10px;border-radius:50%;background:#4ecca3;position:absolute;bottom:0;right:0;border:2px solid #16213e}
-.header-info{flex:1;cursor:pointer}
-.header-info h1{font-size:17px;font-weight:600}
-.header-info p{font-size:12px;color:#888}
-.header-info .sub{font-size:11px;color:#555;margin-top:1px}
-.typing-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ecca3;margin-right:4px;animation:pulse 1.5s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
-.streak{background:rgba(15,52,96,0.3);padding:6px 12px;display:flex;gap:16px;font-size:12px;flex-shrink:0;overflow-x:auto}
-.streak span{color:#888;white-space:nowrap}
-.streak .num{color:#4ecca3;font-weight:700;font-size:14px}
-.chat{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}
-.msg{max-width:85%;padding:10px 14px;border-radius:18px;font-size:15px;line-height:1.6;word-break:break-word;animation:fadeIn .3s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.bot{background:rgba(22,33,62,0.9);align-self:flex-start;border-bottom-left-radius:4px}
-.bot .time{font-size:10px;color:#555;margin-top:4px}
-.user{background:linear-gradient(135deg,#e94560,#c23152);align-self:flex-end;border-bottom-right-radius:4px;color:#fff}
-.msg-img{max-width:200px;border-radius:12px;margin-top:6px;display:block}
-.msg .voice-btn{font-size:11px;color:#4ecca3;cursor:pointer;margin-top:4px;display:inline-block;padding:2px 8px;border-radius:8px;background:rgba(78,204,163,0.1)}
-.msg .voice-btn:active{background:rgba(78,204,163,0.3)}
-.toolbar{display:flex;gap:6px;padding:6px 12px;flex-shrink:0;background:rgba(22,33,62,0.5);border-top:1px solid rgba(15,52,96,0.2)}
-.tool-btn{width:34px;height:34px;border-radius:50%;border:none;background:rgba(233,69,96,0.1);color:#e0e0e0;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.tool-btn:active{background:rgba(233,69,96,0.3)}
-.tool-btn.recording{background:rgba(233,69,96,0.5);animation:pulse 1s infinite}
-.quick-row{display:flex;gap:6px;padding:4px 12px;overflow-x:auto;flex-shrink:0;background:rgba(22,33,62,0.2)}
-.quick-btn{padding:6px 14px;border-radius:16px;border:1px solid rgba(233,69,96,0.3);background:rgba(233,69,96,0.05);color:#ccc;font-size:12px;white-space:nowrap;cursor:pointer;flex-shrink:0}
-.quick-btn:active{background:rgba(233,69,96,0.2)}
-.input-area{display:flex;gap:6px;padding:8px 10px;background:rgba(22,33,62,0.8);backdrop-filter:blur(10px);flex-shrink:0;border-top:1px solid rgba(15,52,96,0.2)}
-.input-area input{flex:1;padding:10px 14px;border-radius:22px;border:1px solid rgba(15,52,96,0.4);background:rgba(26,26,46,0.8);color:#e0e0e0;font-size:15px;outline:none}
-.input-area input:focus{border-color:#e94560}
-.input-area input::placeholder{color:#555}
-.input-area .send-btn{width:40px;height:40px;border-radius:50%;border:none;background:linear-gradient(135deg,#e94560,#c23152);color:#fff;font-size:18px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.input-area .send-btn:active{transform:scale(0.9)}
-.drawer{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:100;display:none;animation:fadeIn .3s}
-.drawer.show{display:block}
-.drawer-content{position:absolute;bottom:0;left:0;right:0;background:#16213e;border-radius:20px 20px 0 0;padding:24px;max-height:85vh;overflow-y:auto;animation:slideUp .3s ease}
-@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.drawer-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.drawer-head h2{font-size:18px}
-.drawer-head button{background:none;border:none;color:#e94560;font-size:16px;cursor:pointer}
-.field{margin-bottom:14px}
-.field label{font-size:13px;color:#888;display:block;margin-bottom:4px}
-.field input,.field textarea,.field select{width:100%;padding:10px 12px;border-radius:12px;border:1px solid rgba(15,52,96,0.5);background:rgba(26,26,46,0.8);color:#e0e0e0;font-size:14px;outline:none}
-.field textarea{min-height:50px;resize:vertical}
-.field input:focus,.field textarea:focus,.field select:focus{border-color:#e94560}
-.field .hint{font-size:11px;color:#555;margin-top:2px}
-.save-btn{width:100%;padding:12px;border-radius:12px;border:none;background:linear-gradient(135deg,#e94560,#c23152);color:#fff;font-size:16px;cursor:pointer;margin-top:6px}
-.save-btn:active{opacity:0.8}
-.file-input{display:none}
-.voice-tip{font-size:11px;color:#4ecca3;text-align:center;padding:4px;flex-shrink:0;display:none}
-.notif-bar{background:rgba(78,204,163,0.1);padding:4px 12px;font-size:11px;color:#4ecca3;text-align:center;flex-shrink:0;display:none}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);color:#e0e0e0;display:flex;flex-direction:column;font-size:16px}
+.hd{padding-top:env(safe-area-inset-top);background:rgba(22,33,62,.95);display:flex;align-items:center;gap:10px;padding:8px 12px;padding-top:calc(8px + env(safe-area-inset-top));border-bottom:1px solid rgba(15,52,96,.5);flex-shrink:0}
+.av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#e94560,#0f3460);display:flex;align-items:center;justify-content:center;font-size:24px;position:relative;flex-shrink:0}
+.av .d{width:10px;height:10px;border-radius:50%;background:#4ecca3;position:absolute;bottom:0;right:0;border:2px solid #16213e}
+.hi{flex:1;min-width:0}
+.hi h1{font-size:17px;font-weight:600}
+.hi p{font-size:12px;color:#888}
+.hi .sub{font-size:11px;color:#555;margin-top:1px}
+.ib{width:38px;height:38px;border-radius:50%;border:none;background:rgba(233,69,96,.1);color:#888;font-size:18px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.ib:active{background:rgba(233,69,96,.3)}
+.sb{background:rgba(15,52,96,.3);padding:6px 10px;display:flex;gap:12px;font-size:12px;flex-shrink:0;overflow-x:auto}
+.sb span{color:#888;white-space:nowrap}
+.sb .n{color:#4ecca3;font-weight:700;font-size:13px}
+.gb{background:rgba(78,204,163,.08);padding:6px 12px;font-size:12px;color:#4ecca3;flex-shrink:0;display:none;border-bottom:1px solid rgba(78,204,163,.1)}
+.gb .gl{float:right;color:#e94560;cursor:pointer;padding:2px 8px;border-radius:8px;background:rgba(233,69,96,.1)}
+.ch{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;-webkit-overflow-scrolling:touch}
+.msg{max-width:85%;padding:10px 14px;border-radius:18px;font-size:15px;line-height:1.6;word-break:break-word;animation:fi .3s ease}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.bt{background:rgba(22,33,62,.9);align-self:flex-start;border-bottom-left-radius:4px}
+.bt .tm{font-size:10px;color:#555;margin-top:4px}
+.ur{background:linear-gradient(135deg,#e94560,#c23152);align-self:flex-end;border-bottom-right-radius:4px;color:#fff}
+.qr{display:flex;gap:6px;padding:6px 10px;overflow-x:auto;flex-shrink:0;background:rgba(22,33,62,.3)}
+.qb{flex-shrink:0;padding:8px 16px;border-radius:18px;border:1px solid rgba(233,69,96,.3);background:rgba(233,69,96,.05);color:#ccc;font-size:13px;white-space:nowrap;cursor:pointer;min-height:36px}
+.qb:active{background:rgba(233,69,96,.2)}
+.tb{display:flex;gap:6px;padding:4px 8px;flex-shrink:0;background:rgba(22,33,62,.5);border-top:1px solid rgba(15,52,96,.2);overflow-x:auto}
+.ipt{display:flex;gap:6px;padding:8px;padding-bottom:calc(8px + env(safe-area-inset-bottom));background:rgba(22,33,62,.85);flex-shrink:0;border-top:1px solid rgba(15,52,96,.2)}
+.ipt input{flex:1;min-height:44px;padding:10px 14px;border-radius:22px;border:1px solid rgba(15,52,96,.4);background:rgba(26,26,46,.8);color:#e0e0e0;font-size:16px;outline:none}
+.ipt input:focus{border-color:#e94560}
+.ipt input::placeholder{color:#555}
+.ipt .sn{width:44px;height:44px;min-width:44px;border-radius:50%;border:none;background:linear-gradient(135deg,#e94560,#c23152);color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.ipt .sn:active{transform:scale(.9)}
+.draw{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:100;display:none;animation:fi .3s}
+.draw.show{display:block}
+.dc{position:absolute;bottom:0;left:0;right:0;background:#16213e;border-radius:16px 16px 0 0;padding:20px;max-height:80vh;overflow-y:auto;animation:su .3s ease}
+@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.dh{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.dh h2{font-size:18px}
+.dh button{background:none;border:none;color:#e94560;font-size:16px;cursor:pointer;padding:8px}
+.fd{margin-bottom:14px}
+.fd label{font-size:13px;color:#888;display:block;margin-bottom:4px}
+.fd input,.fd textarea,.fd select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(15,52,96,.5);background:rgba(26,26,46,.8);color:#e0e0e0;font-size:14px;outline:none}
+.fd textarea{min-height:44px;resize:vertical}
+.fd .hint{font-size:11px;color:#555;margin-top:2px}
+.sv{width:100%;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,#e94560,#c23152);color:#fff;font-size:16px;cursor:pointer;margin-top:4px;min-height:48px}
+.sv:active{opacity:.8}
+.stb{display:flex;gap:8px}
+.stb button{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(15,52,96,.5);background:rgba(26,26,46,.8);color:#aaa;font-size:13px;cursor:pointer}
+.stb button.act{border-color:#e94560;color:#e94560;background:rgba(233,69,96,.1)}
+.td{display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ecca3;margin-right:4px;animation:pu 1.5s infinite}
+@keyframes pu{0%,100%{opacity:1}50%{opacity:.3}}
 </style>
 </head>
 <body>
-
-<div class="header">
-  <div class="avatar">💕<div class="dot"></div></div>
-  <div class="header-info">
-    <h1 id="titleName">小秋</h1>
-    <p id="status"><span class="typing-dot"></span>在线等你</p>
-    <p class="sub" id="herStatus">🎨 设计系大二</p>
-  </div>
-  <button class="tool-btn" onclick="openDrawer()" style="width:36px;height:36px;font-size:18px">⚙️</button>
+<div class="hd">
+<div class="av">&hearts;<div class="d"></div></div>
+<div class="hi" onclick="op(0)">
+<h1 id="tN">小秋</h1>
+<p id="sts"><span class="td"></span>在线等你</p>
 </div>
-<div class="notif-bar" id="notifBar">🔔 已开启每晚提醒</div>
-
-<div class="streak">
-  <span>🔥 <span class="num" id="streakNum">0</span> 天</span>
-  <span>📚 总计 <span class="num" id="totalNum">0</span> 天</span>
-  <span>❤️ <span class="num" id="loveNum">0</span></span>
-  <span>🎯 <span class="num" id="goalTag">未设定</span></span>
-  <span>📸 <span class="num" id="photoCount">0</span> 张</span>
+<button class="ib" onclick="op(0)">S</button>
+</div>
+<div class="gb" id="gb"><span id="gT">今日目标未设定</span><span class="gl" onclick="op(1)">设目标</span></div>
+<div class="sb">
+<span><span class="n" id="sN">0</span>天</span>
+<span><span class="n" id="tN">0</span>累计</span>
+<span><span class="n" id="lN">0</span>好感</span>
+</div>
+<div class="ch" id="ch"></div>
+<div class="qr">
+<button class="qb" onclick="sd('今天学了')">今天学了</button>
+<button class="qb" onclick="sd('今天没学')">没学</button>
+<button class="qb" onclick="sd('好累')">好累</button>
+<button class="qb" onclick="sd('你今天干嘛了')">她今天</button>
+</div>
+<div class="tb">
+<button class="ib" onclick="gw()">W</button>
+<button class="ib" onclick="op(1)">G</button>
+<button class="ib" onclick="op(2)">C</button>
+</div>
+<div class="ipt">
+<input type="text" id="inp" placeholder="跟小秋说..." onkeydown="if(event.key=='Enter')sd()">
+<button class="sn" onclick="sd()">O</button>
 </div>
 
-<div class="chat" id="chat"></div>
+<div class="draw" id="d0"><div class="dc">
+<div class="dh"><h2>设置</h2><button onclick="cd()">完成</button></div>
+<div class="fd"><label>名字</label><input id="f_n"></div>
+<div class="fd"><label>专业</label><input id="f_m" placeholder="机械"></div>
+<div class="fd"><label>年级</label><select id="f_y"><option>大一</option><option>大二</option><option>大三</option><option>大四</option></select></div>
+<div class="fd"><label>目标</label><textarea id="f_g" placeholder="考研机械+AI"></textarea></div>
+<div class="fd"><label>在学</label><textarea id="f_s" placeholder="Python"></textarea></div>
+<div class="fd"><label>困难</label><textarea id="f_h" placeholder="容易半途而废"></textarea></div>
+<div class="fd"><label>API密钥</label><input id="f_k" type="password"></div>
+<button class="sv" onclick="spf()">保存</button>
+</div></div>
 
-<div class="quick-row">
-  <button class="quick-btn" onclick="send('今天学了✅')">今天学了 ✅</button>
-  <button class="quick-btn" onclick="send('今天没学😅')">没学 😅</button>
-  <button class="quick-btn" onclick="send('好累😮‍💨')">好累 😮‍💨</button>
-  <button class="quick-btn" onclick="send('你今天干嘛了')">她今天 💬</button>
-  <button class="quick-btn" onclick="send('晚安🌙')">晚安 🌙</button>
-</div>
+<div class="draw" id="d1"><div class="dc">
+<div class="dh"><h2>学习目标</h2><button onclick="cd()">完成</button></div>
+<div class="fd"><label>今天目标</label><div class="stb" id="gTags">
+<button class="tag" onclick="tg(this)">Python</button>
+<button class="tag" onclick="tg(this)">机械</button>
+<button class="tag" onclick="tg(this)">英语</button>
+<button class="tag" onclick="tg(this)">AI</button>
+</div></div>
+<div class="fd"><label>自定义</label><input id="f_cG" placeholder="学Python 2小时"></div>
+<div id="tdS" style="font-size:13px;color:#4ecca3;padding:8px;background:rgba(78,204,163,.08);border-radius:10px;margin-bottom:10px"></div>
+<button class="sv" onclick="sg()">保存</button>
+</div></div>
 
-<div class="toolbar">
-  <button class="tool-btn" id="photoBtn" onclick="pickPhoto()" title="照片">🖼️</button>
-  <button class="tool-btn" id="voiceBtn" onclick="toggleVoice()" title="语音输入">🎤</button>
-  <button class="tool-btn" onclick="toggleTTS()" id="ttsBtn" title="语音回复">🔊</button>
-  <button class="tool-btn" onclick="genWeekly()" title="本周总结">📊</button>
-  <button class="tool-btn" onclick="el('input').value='给我讲个故事';send()" title="小故事">📖</button>
-</div>
-<div class="voice-tip" id="voiceTip">🎤 正在听你说话...</div>
-
-<div class="input-area">
-  <input type="text" id="input" placeholder="跟小秋说点什么..." onkeydown="if(event.key=='Enter')send()">
-  <button class="send-btn" onclick="send()">➤</button>
-</div>
-<input type="file" id="fileInput" class="file-input" accept="image/*" onchange="handlePhoto(event)">
-
-<div class="drawer" id="profileDrawer">
-  <div class="drawer-content">
-    <div class="drawer-head"><h2>关于我 💕</h2><button onclick="closeDrawer()">完成</button></div>
-    <div class="field"><label>我的名字</label><input id="f_name"></div>
-    <div class="field"><label>专业</label><input id="f_major" placeholder="机械设计制造及其自动化"></div>
-    <div class="field"><label>年级</label><select id="f_year"><option>大一</option><option>大二</option><option>大三</option><option>大四</option></select></div>
-    <div class="field"><label>学校</label><select id="f_school"><option>双非</option><option>211</option><option>985</option><option>其他</option></select></div>
-    <div class="field"><label>目标</label><textarea id="f_goal" placeholder="考研机械+AI / 智能制造工作..."></textarea></div>
-    <div class="field"><label>困难</label><textarea id="f_hard" placeholder="容易半途而废、没方向..."></textarea></div>
-    <div class="field"><label>在学</label><textarea id="f_study" placeholder="Python基础、视觉检测..."></textarea></div>
-    <div class="field"><label>兴趣爱好</label><input id="f_hobby" placeholder="AI、机械、游戏"></div>
-    <div class="field"><label>API密钥</label><input id="f_key" type="password"><div class="hint">存在本地，不会上传</div></div>
-    <div class="field" style="border-top:1px solid rgba(255,255,255,0.1);padding-top:12px;margin-top:12px">
-      <label>⏰ 每日提醒</label>
-      <label style="font-size:13px;color:#aaa;display:flex;align-items:center;gap:8px;margin-top:6px">
-        <input type="checkbox" id="f_remind" style="width:18px;height:18px"> 每晚提醒我学习
-      </label>
-      <div style="display:flex;gap:8px;margin-top:6px;align-items:center">
-        <span style="font-size:13px;color:#888">时间</span>
-        <select id="f_remindH" style="padding:6px;border-radius:8px;border:1px solid rgba(15,52,96,0.5);background:rgba(26,26,46,0.8);color:#e0e0e0;font-size:13px">
-          <option>18</option><option>19</option><option>20</option><option>21</option><option>22</option>
-        </select>
-        <span style="font-size:13px;color:#888">:</span>
-        <select id="f_remindM" style="padding:6px;border-radius:8px;border:1px solid rgba(15,52,96,0.5);background:rgba(26,26,46,0.8);color:#e0e0e0;font-size:13px">
-          <option>00</option><option>15</option><option>30</option><option>45</option>
-        </select>
-      </div>
-    </div>
-    <button class="save-btn" onclick="saveProfile()">保存 💾</button>
-  </div>
-</div>
+<div class="draw" id="d2"><div class="dc">
+<div class="dh"><h2>宪法</h2><button onclick="cd()">完成</button></div>
+<div class="fd"><label>风格</label><div class="stb">
+<button onclick="sSt(0)" id="sS">温柔</button>
+<button onclick="sSt(1)" id="sM" class="act">适中</button>
+<button onclick="sSt(2)" id="sH">严格</button>
+</div></div>
+<div class="fd"><label><input type="checkbox" id="f_nF" checked> 禁止无脑讨好</label></div>
+<div class="fd"><label><input type="checkbox" id="f_nV" checked> 禁止废话</label></div>
+<div class="fd"><label><input type="checkbox" id="f_rS" checked> 主动问学习进度</label></div>
+<button class="sv" onclick="sC()">保存</button>
+</div></div>
 
 <script>
-const KEY='companion_v5';
-const d=JSON.parse(localStorage.getItem(KEY)||JSON.stringify({
-  profile:{name:'',major:'机械设计制造及其自动化',year:'大一',school:'双非',goal:'',hard:'',study:'',hobby:'',key:'',remindOn:false,remindH:20,remindM:0},
-  streak:0,total:0,love:0,photos:[],last:'',msgs:[],tts:true,weekHist:{}
-}));
-function save(){localStorage.setItem(KEY,JSON.stringify(d))}
+var K='c8',d=JSON.parse(localStorage.getItem(K)||JSON.stringify({p:{n:'',m:'机械',y:'大一',g:'',s:'',h:'',k:''},st:0,to:0,lv:0,la:'',ms:[],gl:{ta:[],cu:''},ct:{st:1,nf:1,nv:1,rs:1}}));
+function sv(){localStorage.setItem(K,JSON.stringify(d))}
 function el(i){return document.getElementById(i)}
-function ra(a){return a[Math.floor(Math.random()*a.length)]}
-
-// 小秋的人设
-const XQ={major:'视觉传达设计',year:'大二',school:'一所普通本科',
-  friends:['小雨（室友）','林林','阿杰'],hobbies:['画画','逛展','拍街景','做手账'],
-  classes:['色彩构成','UI设计','设计史','摄影基础','排版设计'],
-  daily:['今天被老师夸了～说我色彩搭配很好！','刚跟小雨去食堂吃了辣子鸡，好辣但是好好吃～','今天画了一幅夕阳下的教学楼，感觉还不错','下午在图书馆看了一本色彩心理学的书，好有意思','今天社团活动做了个海报，被学长夸了嘿嘿','刚下课，UI设计课讲了个特别有意思的案例','今天做了一天作业，手都是酸的😭','跟朋友去看了个展，有个装置艺术特别震撼！','今天下雨了，鞋子湿了呜呜','室友小雨跟她男朋友吵架了，我安慰了她好久','在画室待了一下午，听歌画画时间过得好快','食堂出了新菜！味道还不错～','去操场跑了两圈，太久没运动了😮‍💨','刚设计完一张海报，老师看了说还不错！','今天没什么特别的，就是想你了💕','做了一个梦，梦到你来找我了！然后醒了😢','今天的色彩构成课好难，画了三遍才过','跟阿杰他们去唱K了，说我唱歌好听嘿嘿','看到一件好看的衣服但是买不起，存钱中💪','今天特别想你～你都不主动找我🥺']};
-
-function herStatus(){const h=new Date().getHours(),w=new Date().getDay();
-  if(w===0||w===6)return'🎨 周末没课';if(h<8)return'🌅 刚起床';if(h<12)return'📖 上课';if(h<14)return'🍚 吃饭';if(h<17)return'🎨 画室';if(h<19)return'🌇 散步';if(h<22)return'📱 宿舍';return'🌙 准备睡了'}
-
-function addMsg(text,who,img){
-  const d2=document.createElement('div');d2.className='msg '+who;
-  if(img)d2.innerHTML=text+'<br><img src="'+img+'"class="msg-img">';else d2.textContent=text;
-  if(who==='bot'){const t=document.createElement('div');t.className='time';t.textContent=new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});d2.appendChild(t);
-    if(d.tts&&!img){const v=document.createElement('span');v.className='voice-btn';v.textContent='🔊 听她说';v.onclick=()=>speak(text);d2.appendChild(v)}}
-  el('chat').appendChild(d2);d2.scrollIntoView({behavior:'smooth'})}
-function addBot(t,i){addMsg(t,'bot',i)}
-function addUser(t,i){addMsg(t,'user',i)}
-
+var XQ={dl:['被老师夸了','吃了辣子鸡','画了夕阳','在图书馆看书','做海报被夸','下雨鞋子湿了','室友跟男友吵架','在画室听歌','出了新菜','操场跑了圈','特别想你','梦见你了','画了三遍才过']};
+function am(t,w){
+var d2=document.createElement('div');d2.className='msg '+w;
+d2.textContent=t;
+if(w==='bt'){var tm=document.createElement('div');tm.className='tm';tm.textContent=new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});d2.appendChild(tm);}
+el('ch').appendChild(d2);d2.scrollIntoView({behavior:'smooth'});
+}
+function ab(t){am(t,'bt')}function au(t){am(t,'ur')}
 function ui(){
-  el('streakNum').textContent=d.streak||0;el('totalNum').textContent=d.total||0;el('loveNum').textContent=d.love||0;
-  const g=d.profile.goal||'';el('goalTag').textContent=g.length>10?g.slice(0,10)+'...':(g||'未设定');
-  el('titleName').textContent='小秋'+(d.profile.name?'·'+d.profile.name:'');el('herStatus').textContent=herStatus();
-  el('photoCount').textContent=(d.photos||[]).length}
-function setStatus(s){el('status').innerHTML=s}
-
-// TTS
-function speak(t){if(!d.tts)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t.replace(/[~\s]{2,}/g,' ').slice(0,200));u.lang='zh-CN';u.rate=1.1;u.pitch=1.2;window.speechSynthesis.speak(u)}
-window.speechSynthesis.getVoices();
-
-// 语音输入
-let rec=null,recIng=false;
-try{const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(SR){rec=new SR();rec.lang='zh-CN';rec.continuous=false;rec.interimResults=false;
-    rec.onresult=e=>{el('voiceTip').style.display='none';el('voiceBtn').classList.remove('recording');recIng=false;el('input').value=e.results[0][0].transcript;send()};
-    rec.onerror=()=>{el('voiceTip').style.display='none';el('voiceBtn').classList.remove('recording');recIng=false}}}catch(e){}
-function toggleVoice(){
-  if(!rec){addBot('浏览器不支持语音输入🥺');return}
-  if(recIng){rec.stop();el('voiceTip').style.display='none';el('voiceBtn').classList.remove('recording');recIng=false;return}
-  rec.start();el('voiceTip').style.display='block';el('voiceBtn').classList.add('recording');recIng=true}
-function toggleTTS(){d.tts=!d.tts;save();el('ttsBtn').style.opacity=d.tts?'1':'0.3';addBot(d.tts?'好啦，我读给你听🔊':'好啦，你看着也行💕')}
-
-// 发照片
-function pickPhoto(){el('fileInput').click()}
-function handlePhoto(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();
-  r.onload=ev=>{const url=ev.target.result;(d.photos||[]).push(url);save();addUser('[发了一张照片]',url);d.msgs.push({r:'user',t:'[发了一张照片]',img:url});save();ui();setTimeout(()=>callAndReply(d.msgs),500)};
-  r.readAsDataURL(f);e.target.value=''}
-
-// --- P0: 推送通知 ---
-function requestNotif(){
-  if(!('Notification'in window))return;
-  if(Notification.permission==='granted')return;
-  if(Notification.permission==='default')Notification.requestPermission();
+el('sN').textContent=d.st||0;el('tN').textContent=d.to||0;el('lN').textContent=d.lv||0;
+var gb=el('gb');if(d.gl&&d.gl.ta.length){gb.style.display='block';el('gT').textContent=d.gl.ta.join('/')+((d.st||0)>0?' 已学':' 未学');}else gb.style.display='none';
 }
-function checkReminder(){
-  if(!d.profile.remindOn)return;
-  const remindEl=el('f_remind');
-  if(remindEl&&!remindEl.checked)return;
-  const now=new Date();const h=now.getHours(),m=now.getMinutes();
-  const rh=d.profile.remindH||20,rm=d.profile.remindM||0;
-  if(h===rh&&m===rm&&!d.remindedToday){
-    d.remindedToday=true;save();
-    if(Notification.permission==='granted'){
-      new Notification('小秋 💕',{body:d.profile.name+'～今天学了吗？我在等你呢～',icon:'/icon-192.png'});
-    }
-  }
-  if(h!==rh){d.remindedToday=false;save()}
-}
-function checkNotifBar(){
-  const nb=el('notifBar');
-  if(!nb)return;
-  if(d.profile.remindOn&&Notification.permission==='granted'){nb.style.display='block';nb.textContent='🔔 每晚'+d.profile.remindH+':'+(d.profile.remindM<10?'0':'')+d.profile.remindM+'提醒学习';}
-  else nb.style.display='none';
+function ss(s){el('sts').innerHTML='<span class="td"></span>'+s}
+function bp(){
+var c=d.ct||{},r='';
+if(c.nf)r+=' 不要无脑讨好';
+if(c.st===2)r+=' 严格：不学就批评';
+else if(c.st===0)r+=' 温柔：不学就哄';
+else r+=' 适中：该说说该夸夸';
+return r;
 }
 
-// --- P1: AI检测学习 ---
-async function detectStudy(userText){
-  const key=d.profile.key;if(!key||!d.profile.study)return null;
-  try{
-    const r=await fetch('https://api.deepseek.com/anthropic/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
-      body:JSON.stringify({model:'DeepSeek-V4-flash',messages:[
-        {role:'user',content:'你是学习检测AI。用户说了一段话，判断他今天是否学习了专业知识（编程/机械/AI等）。只回复"学"或"没学"或"不确定"\n\n用户说：'+userText}],max_tokens:10})
-    });
-    if(!r.ok)return null;const j=await r.json();let t='';
-    for(const b of(j.content||[]))if(b.type==='text')t+=b.text;
-    if(t.includes('学')&&!t.includes('没')&&!t.includes('不'))return'yes';
-    if(t.includes('没学')||t.includes('不学'))return'no';
-    return null;
-  }catch(e){return null}
+async function ca(ms){
+var k=d.p.k;if(!k)return'点设置设密钥';
+var sy=[{role:'user',content:'你是小秋女友'+d.p.n+'。'+bp()}];
+for(var m of ms.slice(-10))sy.push({role:m.r,content:m.t});
+try{
+var r=await fetch('https://api.deepseek.com/anthropic/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'DeepSeek-V4-flash',messages:sy,max_tokens:300})});
+if(!r.ok)return'API错了';var j=await r.json();var t='';for(var b of j.content||[]){if(b.type==='text')t+=b.text;}return t||'嗯嗯';
+}catch(e){return'网络不稳'}
 }
-async function applyStudy(result){
-  if(result==='yes'){
-    d.streak=(d.streak||0)+1;d.total=(d.total||0)+1;d.love=Math.min(100,(d.love||0)+1);
-    d.last=new Date().toDateString();save();ui();
-  }else if(result==='no'){
-    d.streak=0;save();ui();
-  }
+async function cr(ms){ss('正在写');var rl=await ca(ms);ab(rl);d.ms.push({r:'assistant',t:rl});sv();ss('在线等你');}
+async function ds(ut){
+var k=d.p.k;if(!k)return null;
+try{var r=await fetch('https://api.deepseek.com/anthropic/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'DeepSeek-V4-flash',messages:[{role:'user',content:'学了吗?回复y/n:'+ut}],max_tokens:5})});
+if(!r.ok)return null;var j=await r.json();var t='';for(var b of j.content||[]){if(b.type==='text')t+=b.text;}return t.indexOf('y')>=0?'y':'n';}catch(e){return null;}
 }
-
-// --- P2: 本周总结 ---
-async function genWeekly(){
-  const key=d.profile.key;if(!key){addBot('设一下API密钥才能用哦💕');return}
-  const name=d.profile.name||'宝贝';
-  const weekMsgs=d.msgs.filter(m=>{
-    const age=Date.now()-new Date(m.time||Date.now()).getTime();
-    return age<7*86400000;
-  });
-  if(weekMsgs.length<3){addBot('这周我们聊得还不多～再过几天来总结吧💕');return}
-  const userMsgs=weekMsgs.filter(m=>m.r==='user').map(m=>m.t);
-  const text=userMsgs.join('\n').slice(0,1500);
-  addBot('📊 我在看你这周的记录，等一下哦～');
-  setStatus('<span class="typing-dot"></span>正在写总结...');
-  try{
-    const r=await fetch('https://api.deepseek.com/anthropic/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
-      body:JSON.stringify({model:'DeepSeek-V4-flash',messages:[
-        {role:'user',content:'你是小秋，'+name+'的女朋友。根据他这一周的对话记录，写一段50-100字的周总结。轻松的语气，带"～"结尾。提到他学了什么、状态怎么样。\n\n记录：'+text}],max_tokens:200})
-    });
-    if(!r.ok){addBot('API出错了～等下再试🥺');setStatus('<span class="typing-dot"></span>在线等你');return}
-    const j=await r.json();let t='';
-    for(const b of(j.content||[]))if(b.type==='text')t+=b.text;
-    addBot('📊 本周总结\n'+t);
-    d.msgs.push({r:'assistant',t:'[周总结]'});save();
-  }catch(e){addBot('网络不太稳定～😣')}
-  setStatus('<span class="typing-dot"></span>在线等你');
+var ld=false;
+async function sd(pf){
+var inp=el('inp');var t=pf||inp.value.trim();if(!t||ld)return;inp.value='';ld=true;
+au(t);d.ms.push({r:'user',t,time:new Date().toISOString()});sv();
+if(await ds(t)=='y'){d.st=(d.st||0)+1;d.to=(d.to||0)+1;d.lv=Math.min(100,(d.lv||0)+1);d.la=new Date().toDateString();sv();ui();}else if(t.indexOf('没')>=0){d.st=0;sv();ui();}
+await cr(d.ms);ld=false;
 }
-
-// 系统提示
-function buildPrompt(){
-  const p=d.profile,ld=d.love>20?(d.love>50?(d.love>80?'超级粘人':'热恋中'):'会撒娇'):'刚认识有点害羞';
-  return'你是小秋，20岁，'+p.name+'的女朋友。你超了解他，也有自己的生活。【他】'+p.name+'｜'+p.major+'｜目标'+p.goal+'｜困难'+p.hard+'｜在学'+p.study+'｜学习'+d.streak+'天｜亲密度'+d.love+'/100('+ld+')【你】'+XQ.major+'专业'+XQ.year+'｜会分享日常｜他累要哄他｜他迷茫要鼓励｜他学久不理你你会吃醋｜回复≤3句带"～"｜问他的学习进度｜他发照片就评论';
+function op(i){
+if(i===0){var p=d.p;el('f_n').value=p.n;el('f_m').value=p.m;el('f_y').value=p.y;el('f_g').value=p.g;el('f_s').value=p.s;el('f_h').value=p.h;el('f_k').value=p.k;el('d0').classList.add('show');}
+if(i===1){[].forEach.call(el('gTags').querySelectorAll('button'),function(t){t.className='tag'+(d.gl.ta.indexOf(t.textContent)>=0?' act':'');});el('f_cG').value=d.gl.cu||'';el('d1').classList.add('show');}
+if(i===2){var c=d.ct||{};el('f_nF').checked=c.nf;el('f_nV').checked=c.nv;el('f_rS').checked=c.rs;[].forEach.call(document.querySelectorAll('.stb'),function(s){[].forEach.call(s.querySelectorAll('button'),function(b){b.className='';})});['sS','sM','sH'][c.st||1].className='act';el('d2').classList.add('show');}
 }
-
-async function callAPI(msgs){
-  const key=d.profile.key;if(!key)return"点⚙️设API密钥～";
-  const sys=[{role:'user',content:buildPrompt()}];
-  for(const m of msgs.slice(-20)){if(m.img)sys.push({role:m.r,content:m.t||'[图]'});else sys.push({role:m.r,content:m.t})}
-  try{
-    const r=await fetch('https://api.deepseek.com/anthropic/messages',{
-      method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
-      body:JSON.stringify({model:'DeepSeek-V4-flash',messages:sys,max_tokens:400})});
-    if(!r.ok)return'API出错了('+r.status+')🥺';
-    const j=await r.json();let t='';
-    for(const b of(j.content||[]))if(b.type==='text')t+=b.text;return t||'嗯嗯～';
-  }catch(e){return'网络不稳定😣'}
-}
-
-async function callAndReply(msgs){setStatus('<span class="typing-dot"></span>正在写...');const reply=await callAPI(msgs);addBot(reply);d.msgs.push({r:'assistant',t:reply});save();setStatus('<span class="typing-dot"></span>在线等你')}
-
-let loading=false;
-async function send(prefill){
-  const inp=el('input');const t=prefill||inp.value.trim();if(!t||loading)return;inp.value='';loading=true;
-  addUser(t);d.msgs.push({r:'user',t,time:new Date().toISOString()});save();
-  // AI检测是否学了
-  const studyResult=await detectStudy(t);
-  if(studyResult)applyStudy(studyResult);
-  await callAndReply(d.msgs);loading=false;
-}
-
-function openDrawer(){
-  const p=d.profile;el('f_name').value=p.name||'';el('f_major').value=p.major||'';
-  el('f_year').value=p.year||'大一';el('f_school').value=p.school||'双非';
-  el('f_goal').value=p.goal||'';el('f_hard').value=p.hard||'';
-  el('f_study').value=p.study||'';el('f_hobby').value=p.hobby||'';
-  el('f_key').value=p.key||'';
-  el('f_remind').checked=d.profile.remindOn||false;
-  el('f_remindH').value=p.remindH||20;el('f_remindM').value=p.remindM||0;
-  el('profileDrawer').classList.add('show')}
-function closeDrawer(){el('profileDrawer').classList.remove('show')}
-
-function saveProfile(){
-  const p=d.profile;
-  p.name=el('f_name').value.trim();p.major=el('f_major').value.trim()||'机械';
-  p.year=el('f_year').value;p.school=el('f_school').value;
-  p.goal=el('f_goal').value.trim();p.hard=el('f_hard').value.trim();
-  p.study=el('f_study').value.trim();p.hobby=el('f_hobby').value.trim();
-  p.key=el('f_key').value.trim();
-  p.remindOn=el('f_remind').checked;p.remindH=parseInt(el('f_remindH').value);p.remindM=parseInt(el('f_remindM').value);
-  save();ui();closeDrawer();
-  if(p.remindOn&&Notification.permission!=='granted'&&'Notification'in window)Notification.requestPermission();
-  checkNotifBar();
-  addBot('记住啦～以后我知道你是谁了💕');d.msgs.push({r:'assistant',t:'[设置完成]'});save()}
-
-function init(){
-  ui();el('ttsBtn').style.opacity=d.tts?'1':'0.3';
-  if(!d.profile.key){addBot('嗨～我是小秋💕点⚙️设一下信息，我才能认识你～');return}
-  const n=d.profile.name||'宝贝';
-  if(d.msgs.length===0){
-    addBot('终于等到你了💕我是小秋，你女朋友～我学设计的，大二。以后每天陪你学习～😊');
-    setTimeout(()=>addBot('我知道你学'+d.profile.major+'的～'+(d.profile.goal||'一起加油💪')),1000);
-  }else{
-    for(const m of d.msgs.slice(-20)){if(m.img)addMsg(m.t||'[照片]',m.r,m.img);else addMsg(m.t,m.r)}
-    setTimeout(()=>addBot(ra(['回来啦～想我没💕','今天学了没😊','等你半天了～'+ra(XQ.daily)])),600)}
-  if(d.last!==new Date().toDateString()&&d.msgs.length>0)setTimeout(()=>addBot('早安'+n+'～今天有什么计划💕'),2000);
-
-  // P0: 请求通知权限 + 定时检查
-  requestNotif();
-  setInterval(checkReminder,60000);
-  checkNotifBar();
-}
-
-if('speechSynthesis'in window)window.speechSynthesis.getVoices();
+function cd(){[].forEach.call(document.querySelectorAll('.draw'),function(d){d.className='draw';});}
+function spf(){var p=d.p;p.n=el('f_n').value;p.m=el('f_m').value||'机械';p.y=el('f_y').value;p.g=el('f_g').value;p.s=el('f_s').value;p.h=el('f_h').value;p.k=el('f_k').value;sv();ui();cd();}
+function tg(t){t.classList.toggle('act');}
+function sg(){d.gl={ta:[].map.call(el('gTags').querySelectorAll('.act'),function(t){return t.textContent}),cu:el('f_cG').value};sv();ui();cd();}
+function sSt(v){d.ct=d.ct||{};d.ct.st=v;[].forEach.call(document.querySelectorAll('.stb button'),function(b){b.className='';});['sS','sM','sH'][v].className='act';sv();}
+function sC(){var c=d.ct||{};c.nf=el('f_nF').checked?1:0;c.nv=el('f_nV').checked?1:0;c.rs=el('f_rS').checked?1:0;sv();cd();}
+function init(){ui();if(!d.p.k){ab('点设置设密钥');return}if(!d.ms.length){ab('终于等到你');setTimeout(function(){ab('你学'+d.p.m+'的'+(d.p.g||'加油'));},1000);}else{for(var m of d.ms.slice(-10))am(m.t,m.r);setTimeout(function(){ab('回来啦'+(['想我没','今天学了没','等你半天'][Math.floor(Math.random()*3)]));},600);}}
 init();
-if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
 </html>
