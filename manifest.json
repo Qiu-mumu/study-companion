@@ -1,9 +1,11 @@
 {
-  "name": "学习搭子",
-  "short_name": "学习搭子",
-  "description": "每天陪你学习，记录你的进步",
+  "name": "小秋 · AI 女友",
+  "short_name": "小秋",
+  "description": "陪你学习、督促你进步",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#1a1a2e",
   "theme_color": "#1a1a2e",
   "icons": [
