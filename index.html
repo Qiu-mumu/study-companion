@@ -106,6 +106,7 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
   <button class="tool-btn" onclick="genWeekly()" title="本周总结">📊</button>
   <button class="tool-btn" onclick="openDrawer('goal')" title="目标监督">🎯</button>
   <button class="tool-btn" onclick="openDrawer('const')" title="宪法模式">⚖️</button>
+  <button class="tool-btn" onclick="exportData()" title="备份数据">💾</button>
   <button class="tool-btn" onclick="el('input').value='给我讲个故事';send()" title="小故事">📖</button>
 </div>
 <div class="voice-tip" id="voiceTip">🎤 正在听你说话...</div>
@@ -145,6 +146,7 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
       </div>
     </div>
     <button class="save-btn" onclick="saveProfile()">保存 💾</button>
+  <button class="save-btn" onclick="importData()" style="background:rgba(78,204,163,0.3);margin-top:4px;font-size:14px">📂 恢复数据</button>
   </div>
 </div>
 
@@ -387,6 +389,17 @@ function saveProfile(){
   if(p.remindOn&&Notification.permission!=='granted'&&'Notification'in window)Notification.requestPermission();
   checkNotifBar();
   addBot('记住啦～以后我知道你是谁了💕');d.msgs.push({r:'assistant',t:'[设置完成]'});save()}
+function exportData(){
+  var e=JSON.stringify({profile:d.profile,streak:d.streak,total:d.total,love:d.love,msgs:d.msgs.slice(-500),goal:d.goal},null,2);
+  var b=new Blob([e],{type:'application/json'});var u=URL.createObjectURL(b);
+  var a=document.createElement('a');a.href=u;a.download='xiaooju_backup_'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);
+  addBot('备份好啦');}
+function importData(){
+  var f=document.createElement('input');f.type='file';f.accept='.json';
+  f.onchange=function(e){var r=new FileReader();
+    r.onload=function(ev){try{var x=JSON.parse(ev.target.result);if(x.profile){d.profile=x.profile;d.streak=x.streak||0;d.total=x.total||0;d.love=x.love||0;d.goal=x.goal||{ta:[],cu:''};if(x.msgs)d.msgs=x.msgs;sv();ui();addBot('恢复成功');}}catch(err){addBot('文件有问题')}};
+    r.readAsText(e.target.files[0]);};f.click();}
 function saveGoal(){
   var tags=[].map.call(document.querySelectorAll('#goalDrawer .tg-btn.act'),function(t){return t.textContent.trim()});
   d.goal={ta:tags,cu:document.getElementById('f_customGoal').value.trim()};sv();ui();closeDrawer();
