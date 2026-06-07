@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1a1a2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="/manifest.json">
+<title>学习搭子</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, 'PingFang SC', sans-serif; background: #1a1a2e; color: #e0e0e0; height: 100vh; display: flex; flex-direction: column; }
+.header { background: #16213e; padding: 16px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #0f3460; flex-shrink: 0; }
+.avatar { width: 40px; height: 40px; border-radius: 50%; background: #0f3460; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.header h1 { font-size: 18px; font-weight: 500; }
+.header .status { font-size: 12px; color: #4ecca3; }
+.streak-bar { background: #16213e; padding: 10px 20px; display: flex; gap: 16px; font-size: 13px; border-bottom: 1px solid #0f3460; flex-shrink: 0; }
+.streak-bar span { color: #888; }
+.streak-bar .num { color: #4ecca3; font-weight: 600; }
+.chat { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.msg { max-width: 85%; padding: 12px 16px; border-radius: 16px; font-size: 15px; line-height: 1.6; animation: fadeIn .3s; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.bot { background: #16213e; align-self: flex-start; border-bottom-left-radius: 4px; }
+.user { background: #0f3460; align-self: flex-end; border-bottom-right-radius: 4px; }
+.quick-reply { display: flex; gap: 8px; padding: 12px 16px; overflow-x: auto; flex-shrink: 0; background: #16213e; border-top: 1px solid #0f3460; }
+.quick-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid #0f3460; background: transparent; color: #e0e0e0; font-size: 14px; white-space: nowrap; cursor: pointer; }
+.quick-btn:active { background: #0f3460; }
+.input-area { display: flex; gap: 8px; padding: 12px 16px; background: #16213e; border-top: 1px solid #0f3460; flex-shrink: 0; }
+.input-area input { flex: 1; padding: 10px 16px; border-radius: 24px; border: 1px solid #0f3460; background: #1a1a2e; color: #e0e0e0; font-size: 15px; outline: none; }
+.input-area input::placeholder { color: #666; }
+.input-area button { padding: 10px 20px; border-radius: 24px; border: none; background: #0f3460; color: #e0e0e0; font-size: 15px; cursor: pointer; }
+.input-area button:active { background: #1a5276; }
+.typing { color: #4ecca3; font-size: 13px; padding: 4px 16px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="avatar">🤖</div>
+  <div>
+    <h1>学习搭子</h1>
+    <div class="status">● 在线</div>
+  </div>
+</div>
+
+<div class="streak-bar" id="streakBar">
+  <span>🔥 连续 <span class="num" id="streakNum">0</span> 天</span>
+  <span>📚 累计 <span class="num" id="totalNum">0</span> 天</span>
+</div>
+
+<div class="chat" id="chat"></div>
+<div id="typing" class="typing"></div>
+
+<div class="quick-reply" id="quickReply">
+  <button class="quick-btn" onclick="sendQuick('今天学了')">今天学了 ✅</button>
+  <button class="quick-btn" onclick="sendQuick('没学')">没学 😴</button>
+  <button class="quick-btn" onclick="sendQuick('累了')">累了 😮‍💨</button>
+  <button class="quick-btn" onclick="sendQuick('晚安')">晚安 🌙</button>
+</div>
+
+<div class="input-area">
+  <input type="text" id="input" placeholder="说点什么..." onkeydown="if(event.key=='Enter')send()">
+  <button onclick="send()">发送</button>
+</div>
+
+<script>
+const DATA_KEY = 'companion_data';
+const CHAT_KEY = 'companion_chat';
+
+let data = JSON.parse(localStorage.getItem(DATA_KEY) || '{"name":"","streak":0,"total":0,"lastDate":"","mood":"ok"}');
+let chatHistory = JSON.parse(localStorage.getItem(CHAT_KEY) || '[]');
+
+function save() {
+  localStorage.setItem(DATA_KEY, JSON.stringify(data));
+  localStorage.setItem(CHAT_KEY, JSON.stringify(chatHistory));
+}
+
+function addMsg(text, who) {
+  const div = document.createElement('div');
+  div.className = 'msg ' + who;
+  div.textContent = text;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  chatHistory.push({text, who, time: new Date().toISOString()});
+  if (chatHistory.length > 200) chatHistory.shift();
+  save();
+}
+
+function showTyping(text) {
+  document.getElementById('typing').textContent = text;
+}
+
+function hideTyping() {
+  document.getElementById('typing').textContent = '';
+}
+
+const responses = {
+  todayLearned: [
+    '不错，今天也没断。',
+    '好，第{streak}天了。',
+    '每天都在动，可以的。',
+    'OK，继续保持。',
+  ],
+  todayNot: [
+    '没事，明天补回来。',
+    '今天休息一下也行。',
+    '一天不学没什么，别连续断就行。',
+  ],
+  tired: [
+    '正常，谁都累的时候。',
+    '那就休息一下，别硬撑。',
+    '开电脑写两行也行，不用学很久。',
+  ],
+  night: [
+    '好，明天再来找你。',
+    '晚安，明天加油。',
+    '早点睡。',
+  ],
+  encouragement: [
+    '嗯，我在听。',
+    '继续说。',
+    '然后呢？',
+    '好。',
+  ],
+};
+
+function botReply(msg) {
+  const name = data.name || '';
+  const r = msg.toLowerCase();
+
+  if (r.includes('学了') || r.includes('搞了') || r.includes('看了') || r.includes('写了') || r.includes('在学')) {
+    data.streak = (data.streak || 0) + 1;
+    data.total = (data.total || 0) + 1;
+    let reply = responses.todayLearned[Math.floor(Math.random() * responses.todayLearned.length)];
+    addMsg(reply.replace('{streak}', data.streak), 'bot');
+    addMsg('（今天学了什么？简单说两句）', 'bot');
+  }
+  else if (r.includes('没学') || r.includes('摸了') || r.includes('没动')) {
+    data.streak = 0;
+    let reply = responses.todayNot[Math.floor(Math.random() * responses.todayNot.length)];
+    addMsg(reply, 'bot');
+    let yesterday = new Date(Date.now() - 86400000).toDateString();
+    let last = chatHistory.filter(m => m.who == 'user' && m.text.includes('没学'));
+    if (last.length >= 2) {
+      addMsg('不过你已经连续几天没动了。明天搞不搞？', 'bot');
+    }
+  }
+  else if (r.includes('累') || r.includes('烦') || r.includes('不想学')) {
+    addMsg(responses.tired[Math.floor(Math.random() * responses.tired.length)], 'bot');
+  }
+  else if (r.includes('晚安') || r.includes('拜') || r.includes('明天见') || r.includes('先这样')) {
+    addMsg(responses.night[Math.floor(Math.random() * responses.night.length)], 'bot');
+  }
+  else if (r.includes('不知道') || r.includes('迷茫') || r.includes('方向')) {
+    addMsg('你现在大一，迷茫是正常的。不用想太远的路，把今天该学的学了就行。', 'bot');
+  }
+  else {
+    addMsg(responses.encouragement[Math.floor(Math.random() * responses.encouragement.length)], 'bot');
+  }
+
+  updateStats();
+}
+
+function send() {
+  const input = document.getElementById('input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  addMsg(text, 'user');
+  showTyping('正在输入...');
+  setTimeout(() => {
+    hideTyping();
+    botReply(text);
+  }, 800 + Math.random() * 600);
+}
+
+function sendQuick(text) {
+  addMsg(text, 'user');
+  showTyping('正在输入...');
+  setTimeout(() => {
+    hideTyping();
+    botReply(text);
+  }, 600);
+}
+
+function updateStats() {
+  document.getElementById('streakNum').textContent = data.streak || 0;
+  document.getElementById('totalNum').textContent = data.total || 0;
+}
+
+// 加载对话历史
+const chat = document.getElementById('chat');
+const today = new Date().toDateString();
+
+// 如果是新的一天且没有今天的对话，自动问候
+let todayMsgs = chatHistory.filter(m => new Date(m.time).toDateString() == today);
+if (todayMsgs.length == 0) {
+  let name = data.name || '';
+  if (!name) {
+    setTimeout(() => {
+      addMsg('嗨，我是你的AI学习搭子。怎么称呼你？', 'bot');
+    }, 300);
+  } else {
+    setTimeout(() => {
+      let greetings = ['早，今天有什么计划？', '起了没？今天准备搞什么？', '新的一天，今天学点啥？'];
+      addMsg(greetings[Math.floor(Math.random() * greetings.length)], 'bot');
+    }, 300);
+    setTimeout(() => {
+      let streak = data.streak || 0;
+      if (streak > 0) {
+        addMsg('你已经连续' + streak + '天在学了。', 'bot');
+      }
+    }, 600);
+  }
+} else {
+  // 恢复历史
+  chatHistory.forEach(m => {
+    const div = document.createElement('div');
+    div.className = 'msg ' + m.who;
+    div.textContent = m.text;
+    chat.appendChild(div);
+  });
+  chat.scrollTop = chat.scrollHeight;
+}
+
+// 监听名字输入
+setTimeout(() => {
+  const lastMsg = chatHistory[chatHistory.length - 1];
+  if (lastMsg && lastMsg.who == 'bot' && lastMsg.text.includes('怎么称呼你')) {
+    // 等待用户输入名字
+    const origSend = send;
+    window.send = function() {
+      const input = document.getElementById('input');
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      if (!data.name) {
+        data.name = text;
+        save();
+        addMsg(text, 'user');
+        addMsg(data.name + '你好，以后每天我会来问你学了什么。不用回很多，简单说几句就行。', 'bot');
+        window.send = origSend;
+        return;
+      }
+      origSend();
+    };
+  }
+}, 500);
+
+updateStats();
+
+// 注册 Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
+</script>
+</body>
+</html>
