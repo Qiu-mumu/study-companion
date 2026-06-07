@@ -61,6 +61,7 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
 .save-btn:active{opacity:0.8}
 .file-input{display:none}
 .voice-tip{font-size:11px;color:#4ecca3;text-align:center;padding:4px;flex-shrink:0;display:none}
+.notif-bar{background:rgba(78,204,163,0.1);padding:4px 12px;font-size:11px;color:#4ecca3;text-align:center;flex-shrink:0;display:none}
 </style>
 </head>
 <body>
@@ -70,10 +71,11 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
   <div class="header-info">
     <h1 id="titleName">小秋</h1>
     <p id="status"><span class="typing-dot"></span>在线等你</p>
-    <p class="sub" id="herStatus">🎨 设计系大二 · 今天没课</p>
+    <p class="sub" id="herStatus">🎨 设计系大二</p>
   </div>
   <button class="tool-btn" onclick="openDrawer()" style="width:36px;height:36px;font-size:18px">⚙️</button>
 </div>
+<div class="notif-bar" id="notifBar">🔔 已开启每晚提醒</div>
 
 <div class="streak">
   <span>🔥 <span class="num" id="streakNum">0</span> 天</span>
@@ -85,22 +87,20 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
 
 <div class="chat" id="chat"></div>
 
-<div class="quick-row" id="quickRow">
+<div class="quick-row">
   <button class="quick-btn" onclick="send('今天学了✅')">今天学了 ✅</button>
   <button class="quick-btn" onclick="send('今天没学😅')">没学 😅</button>
   <button class="quick-btn" onclick="send('好累😮‍💨')">好累 😮‍💨</button>
-  <button class="quick-btn" onclick="send('你今天干嘛了')">你今天干嘛了 💬</button>
-  <button class="quick-btn" onclick="send('发张照片给我～')">发张照片📸</button>
+  <button class="quick-btn" onclick="send('你今天干嘛了')">她今天 💬</button>
   <button class="quick-btn" onclick="send('晚安🌙')">晚安 🌙</button>
 </div>
 
 <div class="toolbar">
-  <button class="tool-btn" id="photoBtn" onclick="pickPhoto()" title="发照片">🖼️</button>
+  <button class="tool-btn" id="photoBtn" onclick="pickPhoto()" title="照片">🖼️</button>
   <button class="tool-btn" id="voiceBtn" onclick="toggleVoice()" title="语音输入">🎤</button>
   <button class="tool-btn" onclick="toggleTTS()" id="ttsBtn" title="语音回复">🔊</button>
-  <div style="flex:1"></div>
-  <button class="tool-btn" onclick="el('input').value='你今天干嘛了';send()">💬 她今天</button>
-  <button class="tool-btn" onclick="el('input').value='给我讲个故事';send()">📖 小故事</button>
+  <button class="tool-btn" onclick="genWeekly()" title="本周总结">📊</button>
+  <button class="tool-btn" onclick="el('input').value='给我讲个故事';send()" title="小故事">📖</button>
 </div>
 <div class="voice-tip" id="voiceTip">🎤 正在听你说话...</div>
 
@@ -122,15 +122,31 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
     <div class="field"><label>在学</label><textarea id="f_study" placeholder="Python基础、视觉检测..."></textarea></div>
     <div class="field"><label>兴趣爱好</label><input id="f_hobby" placeholder="AI、机械、游戏"></div>
     <div class="field"><label>API密钥</label><input id="f_key" type="password"><div class="hint">存在本地，不会上传</div></div>
+    <div class="field" style="border-top:1px solid rgba(255,255,255,0.1);padding-top:12px;margin-top:12px">
+      <label>⏰ 每日提醒</label>
+      <label style="font-size:13px;color:#aaa;display:flex;align-items:center;gap:8px;margin-top:6px">
+        <input type="checkbox" id="f_remind" style="width:18px;height:18px"> 每晚提醒我学习
+      </label>
+      <div style="display:flex;gap:8px;margin-top:6px;align-items:center">
+        <span style="font-size:13px;color:#888">时间</span>
+        <select id="f_remindH" style="padding:6px;border-radius:8px;border:1px solid rgba(15,52,96,0.5);background:rgba(26,26,46,0.8);color:#e0e0e0;font-size:13px">
+          <option>18</option><option>19</option><option>20</option><option>21</option><option>22</option>
+        </select>
+        <span style="font-size:13px;color:#888">:</span>
+        <select id="f_remindM" style="padding:6px;border-radius:8px;border:1px solid rgba(15,52,96,0.5);background:rgba(26,26,46,0.8);color:#e0e0e0;font-size:13px">
+          <option>00</option><option>15</option><option>30</option><option>45</option>
+        </select>
+      </div>
+    </div>
     <button class="save-btn" onclick="saveProfile()">保存 💾</button>
   </div>
 </div>
 
 <script>
-const KEY='companion_v4';
+const KEY='companion_v5';
 const d=JSON.parse(localStorage.getItem(KEY)||JSON.stringify({
-  profile:{name:'',major:'机械设计制造及其自动化',year:'大一',school:'双非',goal:'',hard:'',study:'',hobby:'',key:''},
-  streak:0,total:0,love:0,photos:[],last:'',msgs:[],tts:true
+  profile:{name:'',major:'机械设计制造及其自动化',year:'大一',school:'双非',goal:'',hard:'',study:'',hobby:'',key:'',remindOn:false,remindH:20,remindM:0},
+  streak:0,total:0,love:0,photos:[],last:'',msgs:[],tts:true,weekHist:{}
 }));
 function save(){localStorage.setItem(KEY,JSON.stringify(d))}
 function el(i){return document.getElementById(i)}
@@ -138,216 +154,205 @@ function ra(a){return a[Math.floor(Math.random()*a.length)]}
 
 // 小秋的人设
 const XQ={major:'视觉传达设计',year:'大二',school:'一所普通本科',
-  friends:['小雨（室友）','林林','阿杰'],
-  hobbies:['画画','逛展','拍街景','做手账'],
+  friends:['小雨（室友）','林林','阿杰'],hobbies:['画画','逛展','拍街景','做手账'],
   classes:['色彩构成','UI设计','设计史','摄影基础','排版设计'],
-  daily:['今天被老师夸了～说我色彩搭配很好！',
-    '刚跟小雨去食堂吃了辣子鸡，好辣但是好好吃～',
-    '今天画了一幅夕阳下的教学楼，感觉还不错',
-    '下午在图书馆看了一本色彩心理学的书，好有意思',
-    '今天社团活动做了个海报，被学长夸了嘿嘿',
-    '刚下课，UI设计课讲了个特别有意思的案例',
-    '今天做了一天作业，手都是酸的😭',
-    '跟朋友去看了个展，有个装置艺术特别震撼！',
-    '今天下雨了，鞋子湿了呜呜',
-    '室友小雨跟她男朋友吵架了，我安慰了她好久',
-    '在画室待了一下午，听歌画画时间过得好快',
-    '食堂出了新菜！味道还不错～',
-    '去操场跑了两圈，太久没运动了😮‍💨',
-    '刚设计完一张海报，老师看了说还不错！',
-    '今天没什么特别的，就是想你了💕',
-    '做了一个梦，梦到你来找我了！然后醒了😢',
-    '今天的色彩构成课好难，画了三遍才过',
-    '跟阿杰他们去唱K了，说我唱歌好听嘿嘿',
-    '看到一件好看的衣服但是买不起，存钱中💪',
-    '今天特别想你～你都不主动找我🥺']};
+  daily:['今天被老师夸了～说我色彩搭配很好！','刚跟小雨去食堂吃了辣子鸡，好辣但是好好吃～','今天画了一幅夕阳下的教学楼，感觉还不错','下午在图书馆看了一本色彩心理学的书，好有意思','今天社团活动做了个海报，被学长夸了嘿嘿','刚下课，UI设计课讲了个特别有意思的案例','今天做了一天作业，手都是酸的😭','跟朋友去看了个展，有个装置艺术特别震撼！','今天下雨了，鞋子湿了呜呜','室友小雨跟她男朋友吵架了，我安慰了她好久','在画室待了一下午，听歌画画时间过得好快','食堂出了新菜！味道还不错～','去操场跑了两圈，太久没运动了😮‍💨','刚设计完一张海报，老师看了说还不错！','今天没什么特别的，就是想你了💕','做了一个梦，梦到你来找我了！然后醒了😢','今天的色彩构成课好难，画了三遍才过','跟阿杰他们去唱K了，说我唱歌好听嘿嘿','看到一件好看的衣服但是买不起，存钱中💪','今天特别想你～你都不主动找我🥺']};
 
-function herStatus(){
-  const h=new Date().getHours(),w=new Date().getDay();
-  if(w===0||w===6)return'🎨 周末没课';
-  if(h<8)return'🌅 刚起床准备上课';
-  if(h<12)return'📖 在上'+ra(XQ.classes);
-  if(h<14)return'🍚 刚下课在吃饭';
-  if(h<17)return'🎨 下午没课在画室';
-  if(h<19)return'🌇 在校园散步';
-  if(h<22)return'📱 在宿舍刚忙完';
-  return'🌙 准备睡了晚安';
-}
+function herStatus(){const h=new Date().getHours(),w=new Date().getDay();
+  if(w===0||w===6)return'🎨 周末没课';if(h<8)return'🌅 刚起床';if(h<12)return'📖 上课';if(h<14)return'🍚 吃饭';if(h<17)return'🎨 画室';if(h<19)return'🌇 散步';if(h<22)return'📱 宿舍';return'🌙 准备睡了'}
 
 function addMsg(text,who,img){
-  const d2=document.createElement('div');
-  d2.className='msg '+who;
-  if(img)d2.innerHTML=text+'<br><img src="'+img+'"class="msg-img">';
-  else d2.textContent=text;
-  if(who==='bot'){
-    const t=document.createElement('div');
-    t.className='time';
-    t.textContent=new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});
-    d2.appendChild(t);
-    if(d.tts&&!img){
-      const v=document.createElement('span');
-      v.className='voice-btn';
-      v.textContent='🔊 听她说';
-      v.onclick=()=>speak(text);
-      d2.appendChild(v);
-    }
-  }
-  el('chat').appendChild(d2);
-  d2.scrollIntoView({behavior:'smooth'});
-}
+  const d2=document.createElement('div');d2.className='msg '+who;
+  if(img)d2.innerHTML=text+'<br><img src="'+img+'"class="msg-img">';else d2.textContent=text;
+  if(who==='bot'){const t=document.createElement('div');t.className='time';t.textContent=new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});d2.appendChild(t);
+    if(d.tts&&!img){const v=document.createElement('span');v.className='voice-btn';v.textContent='🔊 听她说';v.onclick=()=>speak(text);d2.appendChild(v)}}
+  el('chat').appendChild(d2);d2.scrollIntoView({behavior:'smooth'})}
 function addBot(t,i){addMsg(t,'bot',i)}
 function addUser(t,i){addMsg(t,'user',i)}
 
 function ui(){
-  el('streakNum').textContent=d.streak||0;
-  el('totalNum').textContent=d.total||0;
-  el('loveNum').textContent=d.love||0;
-  const g=d.profile.goal||'';
-  el('goalTag').textContent=g.length>10?g.slice(0,10)+'...':(g||'未设定');
-  el('titleName').textContent='小秋'+(d.profile.name?'·'+d.profile.name:'');
-  el('herStatus').textContent=herStatus();
-  el('photoCount').textContent=(d.photos||[]).length;
-}
-
+  el('streakNum').textContent=d.streak||0;el('totalNum').textContent=d.total||0;el('loveNum').textContent=d.love||0;
+  const g=d.profile.goal||'';el('goalTag').textContent=g.length>10?g.slice(0,10)+'...':(g||'未设定');
+  el('titleName').textContent='小秋'+(d.profile.name?'·'+d.profile.name:'');el('herStatus').textContent=herStatus();
+  el('photoCount').textContent=(d.photos||[]).length}
 function setStatus(s){el('status').innerHTML=s}
 
 // TTS
-function speak(text){
-  if(!d.tts)return;
-  window.speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(text.replace(/[~\s]{2,}/g,' ').slice(0,200));
-  u.lang='zh-CN';u.rate=1.1;u.pitch=1.2;
-  window.speechSynthesis.speak(u);
-}
+function speak(t){if(!d.tts)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t.replace(/[~\s]{2,}/g,' ').slice(0,200));u.lang='zh-CN';u.rate=1.1;u.pitch=1.2;window.speechSynthesis.speak(u)}
 window.speechSynthesis.getVoices();
 
 // 语音输入
 let rec=null,recIng=false;
-try{
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(SR){
-    rec=new SR();rec.lang='zh-CN';rec.continuous=false;rec.interimResults=false;
-    rec.onresult=e=>{
-      el('voiceTip').style.display='none';el('voiceBtn').classList.remove('recording');recIng=false;
-      el('input').value=e.results[0][0].transcript;send();
-    };
-    rec.onerror=()=>{el('voiceTip').style.display='none';el('voiceBtn').classList.remove('recording');recIng=false};
-  }
-}catch(e){}
-
+try{const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(SR){rec=new SR();rec.lang='zh-CN';rec.continuous=false;rec.interimResults=false;
+    rec.onresult=e=>{el('voiceTip').style.display='none';el('voiceBtn').classList.remove('recording');recIng=false;el('input').value=e.results[0][0].transcript;send()};
+    rec.onerror=()=>{el('voiceTip').style.display='none';el('voiceBtn').classList.remove('recording');recIng=false}}}catch(e){}
 function toggleVoice(){
   if(!rec){addBot('浏览器不支持语音输入🥺');return}
   if(recIng){rec.stop();el('voiceTip').style.display='none';el('voiceBtn').classList.remove('recording');recIng=false;return}
-  rec.start();el('voiceTip').style.display='block';el('voiceBtn').classList.add('recording');recIng=true;
-}
-
-function toggleTTS(){
-  d.tts=!d.tts;save();
-  el('ttsBtn').style.opacity=d.tts?'1':'0.3';
-  addBot(d.tts?'好啦，我读给你听🔊':'好啦，你看着也行💕');
-}
+  rec.start();el('voiceTip').style.display='block';el('voiceBtn').classList.add('recording');recIng=true}
+function toggleTTS(){d.tts=!d.tts;save();el('ttsBtn').style.opacity=d.tts?'1':'0.3';addBot(d.tts?'好啦，我读给你听🔊':'好啦，你看着也行💕')}
 
 // 发照片
 function pickPhoto(){el('fileInput').click()}
-function handlePhoto(e){
-  const f=e.target.files[0];if(!f)return;
-  const r=new FileReader();
-  r.onload=ev=>{
-    const url=ev.target.result;
-    (d.photos||[]).push(url);save();
-    addUser('[发了一张照片]',url);
-    d.msgs.push({r:'user',t:'[发了一张照片]',img:url});save();ui();
-    setTimeout(()=>callAndReply(d.msgs),500);
-  };
-  r.readAsDataURL(f);e.target.value='';
+function handlePhoto(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=ev=>{const url=ev.target.result;(d.photos||[]).push(url);save();addUser('[发了一张照片]',url);d.msgs.push({r:'user',t:'[发了一张照片]',img:url});save();ui();setTimeout(()=>callAndReply(d.msgs),500)};
+  r.readAsDataURL(f);e.target.value=''}
+
+// --- P0: 推送通知 ---
+function requestNotif(){
+  if(!('Notification'in window))return;
+  if(Notification.permission==='granted')return;
+  if(Notification.permission==='default')Notification.requestPermission();
+}
+function checkReminder(){
+  if(!d.profile.remindOn)return;
+  const remindEl=el('f_remind');
+  if(remindEl&&!remindEl.checked)return;
+  const now=new Date();const h=now.getHours(),m=now.getMinutes();
+  const rh=d.profile.remindH||20,rm=d.profile.remindM||0;
+  if(h===rh&&m===rm&&!d.remindedToday){
+    d.remindedToday=true;save();
+    if(Notification.permission==='granted'){
+      new Notification('小秋 💕',{body:d.profile.name+'～今天学了吗？我在等你呢～',icon:'/icon-192.png'});
+    }
+  }
+  if(h!==rh){d.remindedToday=false;save()}
+}
+function checkNotifBar(){
+  const nb=el('notifBar');
+  if(!nb)return;
+  if(d.profile.remindOn&&Notification.permission==='granted'){nb.style.display='block';nb.textContent='🔔 每晚'+d.profile.remindH+':'+(d.profile.remindM<10?'0':'')+d.profile.remindM+'提醒学习';}
+  else nb.style.display='none';
 }
 
-// 系统提示
-function buildPrompt(){
-  const p=d.profile,ld='刚认识有点害羞';
-  const ld2=d.love>20?'越来越熟了会撒娇':d.love>50?'很亲密热恋中':d.love>80?'超级粘人':ld;
-  return `你是小秋，20岁，${p.name||'宝贝'}的女朋友。你超了解他，也有自己的生活。
-
-【他】${p.name} | 专业${p.major}(${p.year}) | 目标${p.goal||'未定'} | 困难${p.hard||'未说'} | 在学${p.study||'未知'}
-学习${d.streak}天 | 亲密度${d.love}/100(${ld2})
-
-【你】${XQ.major}专业${XQ.year} | 会分享日常 | 他问就说 | 主动分享也可以
-他会累要哄 | 他迷茫要鼓励 | 他学久了不理你你会吃醋
-
-回复：单次≤3句，带"～"，像真人聊天。问他的学习进度，关心他。他发照片就评论。`;
-  const key=d.profile.key;
-  if(!key)return"点右上角⚙️设API密钥～";
-  const sys=[{role:'user',content:buildPrompt()}];
-  for(const m of msgs.slice(-20)){
-    if(m.img)sys.push({role:m.r,content:m.t||'[图]'});
-    else sys.push({role:m.r,content:m.t});
-  }
+// --- P1: AI检测学习 ---
+async function detectStudy(userText){
+  const key=d.profile.key;if(!key||!d.profile.study)return null;
   try{
     const r=await fetch('https://api.deepseek.com/anthropic/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
-      body:JSON.stringify({model:'DeepSeek-V4-flash',messages:sys,max_tokens:400})
+      body:JSON.stringify({model:'DeepSeek-V4-flash',messages:[
+        {role:'user',content:'你是学习检测AI。用户说了一段话，判断他今天是否学习了专业知识（编程/机械/AI等）。只回复"学"或"没学"或"不确定"\n\n用户说：'+userText}],max_tokens:10})
     });
-    if(!r.ok)return'API出错了('+r.status+')🥺';
-    const j=await r.json();let t='';
+    if(!r.ok)return null;const j=await r.json();let t='';
     for(const b of(j.content||[]))if(b.type==='text')t+=b.text;
-    return t||'嗯嗯～';
-  }catch(e){return'网络不稳定😣'}
+    if(t.includes('学')&&!t.includes('没')&&!t.includes('不'))return'yes';
+    if(t.includes('没学')||t.includes('不学'))return'no';
+    return null;
+  }catch(e){return null}
+}
+async function applyStudy(result){
+  if(result==='yes'){
+    d.streak=(d.streak||0)+1;d.total=(d.total||0)+1;d.love=Math.min(100,(d.love||0)+1);
+    d.last=new Date().toDateString();save();ui();
+  }else if(result==='no'){
+    d.streak=0;save();ui();
+  }
 }
 
-async function callAndReply(msgs){
-  setStatus('<span class="typing-dot"></span>正在写...');
-  const reply=await callAPI(msgs);
-  addBot(reply);d.msgs.push({r:'assistant',t:reply});save();
+// --- P2: 本周总结 ---
+async function genWeekly(){
+  const key=d.profile.key;if(!key){addBot('设一下API密钥才能用哦💕');return}
+  const name=d.profile.name||'宝贝';
+  const weekMsgs=d.msgs.filter(m=>{
+    const age=Date.now()-new Date(m.time||Date.now()).getTime();
+    return age<7*86400000;
+  });
+  if(weekMsgs.length<3){addBot('这周我们聊得还不多～再过几天来总结吧💕');return}
+  const userMsgs=weekMsgs.filter(m=>m.r==='user').map(m=>m.t);
+  const text=userMsgs.join('\n').slice(0,1500);
+  addBot('📊 我在看你这周的记录，等一下哦～');
+  setStatus('<span class="typing-dot"></span>正在写总结...');
+  try{
+    const r=await fetch('https://api.deepseek.com/anthropic/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({model:'DeepSeek-V4-flash',messages:[
+        {role:'user',content:'你是小秋，'+name+'的女朋友。根据他这一周的对话记录，写一段50-100字的周总结。轻松的语气，带"～"结尾。提到他学了什么、状态怎么样。\n\n记录：'+text}],max_tokens:200})
+    });
+    if(!r.ok){addBot('API出错了～等下再试🥺');setStatus('<span class="typing-dot"></span>在线等你');return}
+    const j=await r.json();let t='';
+    for(const b of(j.content||[]))if(b.type==='text')t+=b.text;
+    addBot('📊 本周总结\n'+t);
+    d.msgs.push({r:'assistant',t:'[周总结]'});save();
+  }catch(e){addBot('网络不太稳定～😣')}
   setStatus('<span class="typing-dot"></span>在线等你');
 }
 
+// 系统提示
+function buildPrompt(){
+  const p=d.profile,ld=d.love>20?(d.love>50?(d.love>80?'超级粘人':'热恋中'):'会撒娇'):'刚认识有点害羞';
+  return'你是小秋，20岁，'+p.name+'的女朋友。你超了解他，也有自己的生活。【他】'+p.name+'｜'+p.major+'｜目标'+p.goal+'｜困难'+p.hard+'｜在学'+p.study+'｜学习'+d.streak+'天｜亲密度'+d.love+'/100('+ld+')【你】'+XQ.major+'专业'+XQ.year+'｜会分享日常｜他累要哄他｜他迷茫要鼓励｜他学久不理你你会吃醋｜回复≤3句带"～"｜问他的学习进度｜他发照片就评论';
+}
+
+async function callAPI(msgs){
+  const key=d.profile.key;if(!key)return"点⚙️设API密钥～";
+  const sys=[{role:'user',content:buildPrompt()}];
+  for(const m of msgs.slice(-20)){if(m.img)sys.push({role:m.r,content:m.t||'[图]'});else sys.push({role:m.r,content:m.t})}
+  try{
+    const r=await fetch('https://api.deepseek.com/anthropic/messages',{
+      method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({model:'DeepSeek-V4-flash',messages:sys,max_tokens:400})});
+    if(!r.ok)return'API出错了('+r.status+')🥺';
+    const j=await r.json();let t='';
+    for(const b of(j.content||[]))if(b.type==='text')t+=b.text;return t||'嗯嗯～';
+  }catch(e){return'网络不稳定😣'}
+}
+
+async function callAndReply(msgs){setStatus('<span class="typing-dot"></span>正在写...');const reply=await callAPI(msgs);addBot(reply);d.msgs.push({r:'assistant',t:reply});save();setStatus('<span class="typing-dot"></span>在线等你')}
+
 let loading=false;
 async function send(prefill){
-  const inp=el('input');const t=prefill||inp.value.trim();
-  if(!t||loading)return;inp.value='';loading=true;
-  addUser(t);d.msgs.push({r:'user',t});save();
-  const r=t.toLowerCase();
-  if(r.includes('学了')||r.includes('搞了')||r.includes('看了')||r.includes('写了')){
-    d.streak=(d.streak||0)+1;d.total=(d.total||0)+1;d.love=Math.min(100,(d.love||0)+1);
-    d.last=new Date().toDateString();save();ui();
-  }
-  if(r.includes('没学')||r.includes('摸了')){d.streak=0;save();ui()}
+  const inp=el('input');const t=prefill||inp.value.trim();if(!t||loading)return;inp.value='';loading=true;
+  addUser(t);d.msgs.push({r:'user',t,time:new Date().toISOString()});save();
+  // AI检测是否学了
+  const studyResult=await detectStudy(t);
+  if(studyResult)applyStudy(studyResult);
   await callAndReply(d.msgs);loading=false;
 }
 
 function openDrawer(){
-  const p=d.profile;
-  el('f_name').value=p.name||'';el('f_major').value=p.major||'';
+  const p=d.profile;el('f_name').value=p.name||'';el('f_major').value=p.major||'';
   el('f_year').value=p.year||'大一';el('f_school').value=p.school||'双非';
   el('f_goal').value=p.goal||'';el('f_hard').value=p.hard||'';
   el('f_study').value=p.study||'';el('f_hobby').value=p.hobby||'';
-  el('f_key').value=p.key||'';el('profileDrawer').classList.add('show');
-}
+  el('f_key').value=p.key||'';
+  el('f_remind').checked=d.profile.remindOn||false;
+  el('f_remindH').value=p.remindH||20;el('f_remindM').value=p.remindM||0;
+  el('profileDrawer').classList.add('show')}
 function closeDrawer(){el('profileDrawer').classList.remove('show')}
+
 function saveProfile(){
   const p=d.profile;
   p.name=el('f_name').value.trim();p.major=el('f_major').value.trim()||'机械';
   p.year=el('f_year').value;p.school=el('f_school').value;
   p.goal=el('f_goal').value.trim();p.hard=el('f_hard').value.trim();
   p.study=el('f_study').value.trim();p.hobby=el('f_hobby').value.trim();
-  p.key=el('f_key').value.trim();save();ui();closeDrawer();
-  addBot('记住啦～以后我知道你是谁了💕');d.msgs.push({r:'assistant',t:'[设置完成]'});save();
-}
+  p.key=el('f_key').value.trim();
+  p.remindOn=el('f_remind').checked;p.remindH=parseInt(el('f_remindH').value);p.remindM=parseInt(el('f_remindM').value);
+  save();ui();closeDrawer();
+  if(p.remindOn&&Notification.permission!=='granted'&&'Notification'in window)Notification.requestPermission();
+  checkNotifBar();
+  addBot('记住啦～以后我知道你是谁了💕');d.msgs.push({r:'assistant',t:'[设置完成]'});save()}
 
 function init(){
   ui();el('ttsBtn').style.opacity=d.tts?'1':'0.3';
   if(!d.profile.key){addBot('嗨～我是小秋💕点⚙️设一下信息，我才能认识你～');return}
   const n=d.profile.name||'宝贝';
   if(d.msgs.length===0){
-    addBot('终于等到你了💕我是小秋，你女朋友～我学设计的，大二。以后每天陪你学习，你也要跟我分享你的事哦😊');
+    addBot('终于等到你了💕我是小秋，你女朋友～我学设计的，大二。以后每天陪你学习～😊');
     setTimeout(()=>addBot('我知道你学'+d.profile.major+'的～'+(d.profile.goal||'一起加油💪')),1000);
   }else{
     for(const m of d.msgs.slice(-20)){if(m.img)addMsg(m.t||'[照片]',m.r,m.img);else addMsg(m.t,m.r)}
-    setTimeout(()=>addBot(ra(['回来啦～想我没💕','今天学了没😊','等你半天了～'+ra(XQ.daily)])),600);
-  }
-  if(d.last!==new Date().toDateString()&&d.msgs.length>0)
-    setTimeout(()=>addBot('早安'+n+'～今天有什么计划💕'),2000);
+    setTimeout(()=>addBot(ra(['回来啦～想我没💕','今天学了没😊','等你半天了～'+ra(XQ.daily)])),600)}
+  if(d.last!==new Date().toDateString()&&d.msgs.length>0)setTimeout(()=>addBot('早安'+n+'～今天有什么计划💕'),2000);
+
+  // P0: 请求通知权限 + 定时检查
+  requestNotif();
+  setInterval(checkReminder,60000);
+  checkNotifBar();
 }
 
 if('speechSynthesis'in window)window.speechSynthesis.getVoices();
