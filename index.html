@@ -386,7 +386,7 @@ function buildPrompt(){
 async function callAPI(msgs){
   const key=d.profile.key;if(!key)return"点⚙️设API密钥～";
   const sys=[{role:'user',content:buildPrompt()}];
-  for(const m of msgs{if(m.img)sys.push({role:m.r,content:m.t||'[图]'});else sys.push({role:m.r,content:m.t})}
+  for(const m of msgs.slice(-20)){if(m.img)sys.push({role:m.r,content:m.t||'[图]'});else sys.push({role:m.r,content:m.t})}
   try{
     const r=await fetch('https://api.deepseek.com/anthropic/messages',{
       method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
