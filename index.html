@@ -336,12 +336,12 @@ async function genWeekly(){
 
 
 // ===== 长期记忆系统 =====
-function openDB(){return new Promise(function(res,rej){
+function openDB(){try{return new Promise(function(res,rej){
   var r=indexedDB.open('XiaoqiuMemory',1);
   r.onupgradeneeded=function(e){e.target.result.createObjectStore('facts',{keyPath:'id',autoIncrement:true}).createIndex('time','time',{unique:false});};
   r.onsuccess=function(e){res(e.target.result);};
   r.onerror=function(e){rej(e.target.error);};
-})}
+});}catch(e){return Promise.reject(e);}}
 function addFact(text){
   openDB().then(function(db){
     var tx=db.transaction('facts','readwrite');
@@ -478,7 +478,7 @@ function saveConst(){var c=d.const||{};c.nf=document.getElementById('f_noFlatter
   addBot('宪法记住了～以后按这个来😊');d.msgs.push({r:'assistant',t:'[宪法已设]'});sv()}
 
 function init(){
-  getAllFacts().then(function(f){window._memFacts=f;});
+  try{getAllFacts().then(function(f){window._memFacts=f;});}catch(e){}
   ui();el('ttsBtn').style.opacity=d.tts?'1':'0.3';
   if(!d.profile.key){addBot('嗨～我是小秋💕点⚙️设一下信息，我才能认识你～');return}
   const n=d.profile.name||'宝贝';
