@@ -8,7 +8,7 @@
 <link rel="manifest" href="manifest.json">
 <title>小秋 · AI 女友</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);color:#e0e0e0;height:100vh;display:flex;flex-direction:column;overflow:hidden;padding-bottom:env(safe-area-inset-bottom)}
 .header{background:rgba(22,33,62,0.95);backdrop-filter:blur(10px);padding:12px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(15,52,96,0.5);flex-shrink:0}
 .avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#e94560,#0f3460);display:flex;align-items:center;justify-content:center;font-size:22px;position:relative;cursor:pointer}
@@ -36,13 +36,13 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
 .tool-btn:active{background:rgba(233,69,96,0.3)}
 .tool-btn.recording{background:rgba(233,69,96,0.5);animation:pulse 1s infinite}
 .quick-row{display:flex;gap:6px;padding:4px 12px;overflow-x:auto;flex-shrink:0;background:rgba(22,33,62,0.2)}
-.quick-btn{padding:8px 16px;border-radius:18px;border:1px solid rgba(233,69,96,0.3);background:rgba(233,69,96,0.05);color:#ccc;font-size:13px;white-space:nowrap;cursor:pointer;min-height:36px;flex-shrink:0}
+.quick-btn{padding:6px 14px;border-radius:16px;border:1px solid rgba(233,69,96,0.3);background:rgba(233,69,96,0.05);color:#ccc;font-size:12px;white-space:nowrap;cursor:pointer;flex-shrink:0}
 .quick-btn:active{background:rgba(233,69,96,0.2)}
 .input-area{display:flex;gap:6px;padding:8px 10px;padding-bottom:calc(8px + env(safe-area-inset-bottom));background:rgba(22,33,62,0.8);backdrop-filter:blur(10px);flex-shrink:0;border-top:1px solid rgba(15,52,96,0.2)}
 .input-area input{flex:1;padding:10px 14px;border-radius:22px;border:1px solid rgba(15,52,96,0.4);background:rgba(26,26,46,0.8);color:#e0e0e0;font-size:15px;outline:none}
 .input-area input:focus{border-color:#e94560}
 .input-area input::placeholder{color:#555}
-.input-area .send-btn{width:44px;height:44px;border-radius:50%;border:none;background:linear-gradient(135deg,#e94560,#c23152);color:#fff;font-size:18px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.input-area .send-btn{width:40px;height:40px;border-radius:50%;border:none;background:linear-gradient(135deg,#e94560,#c23152);color:#fff;font-size:18px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .input-area .send-btn:active{transform:scale(0.9)}
 .drawer{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:100;display:none;animation:fadeIn .3s}
 .drawer.show{display:block}
@@ -61,12 +61,10 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
 .save-btn:active{opacity:0.8}
 .file-input{display:none}
 .voice-tip{font-size:11px;color:#4ecca3;text-align:center;padding:4px;flex-shrink:0;display:none}
-.gb{background:rgba(78,204,163,.08);padding:6px 12px;font-size:12px;color:#4ecca3;flex-shrink:0;display:none;border-bottom:1px solid rgba(78,204,163,.1)}
-.gb .gl{float:right;color:#e94560;cursor:pointer;padding:2px 8px;border-radius:8px;background:rgba(233,69,96,.1)}
-.tag-btn{padding:7px 14px;border-radius:16px;border:1px solid rgba(15,52,96,.5);background:rgba(26,26,46,.8);color:#aaa;font-size:13px;cursor:pointer;margin:3px}
-.tag-btn.act{border-color:#e94560;color:#e94560;background:rgba(233,69,96,.1)}
-.stb{display:flex;gap:8px}.stb button{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(15,52,96,.5);background:rgba(26,26,46,.8);color:#aaa;font-size:13px;cursor:pointer}.stb button.act{border-color:#e94560;color:#e94560;background:rgba(233,69,96,.1)}
 .notif-bar{background:rgba(78,204,163,0.1);padding:4px 12px;font-size:11px;color:#4ecca3;text-align:center;flex-shrink:0;display:none}
+.gb{background:rgba(78,204,163,.08);padding:6px 12px;font-size:12px;color:#4ecca3;flex-shrink:0;display:none;border-bottom:1px solid rgba(78,204,163,.1)}.gb .gl{float:right;color:#e94560;cursor:pointer;padding:2px 8px;border-radius:8px;background:rgba(233,69,96,.1)}
+.stb{display:flex;gap:8px;margin-top:4px}.stb button{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(15,52,96,.5);background:rgba(26,26,46,.8);color:#aaa;font-size:13px;cursor:pointer}.stb button.act{border-color:#e94560;color:#e94560;background:rgba(233,69,96,.1)}
+.tg-btn{padding:7px 14px;border-radius:16px;border:1px solid rgba(15,52,96,.5);background:rgba(26,26,46,.8);color:#aaa;font-size:13px;cursor:pointer;margin:3px;display:inline-block}.tg-btn.act{border-color:#e94560;color:#e94560;background:rgba(233,69,96,.1)}
 </style>
 </head>
 <body>
@@ -78,7 +76,7 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
     <p id="status"><span class="typing-dot"></span>在线等你</p>
     <p class="sub" id="herStatus">🎨 设计系大二</p>
   </div>
-  <button class="tool-btn" onclick="openProfileDrawer()" style="width:36px;height:36px;font-size:18px">⚙️</button>
+  <button class="tool-btn" onclick="openDrawer()" style="width:36px;height:36px;font-size:18px">⚙️</button>
 </div>
 <div class="notif-bar" id="notifBar">🔔 已开启每晚提醒</div>
 <div class="gb" id="goalBanner">📋 <span id="goalText">今日目标未设定</span><span class="gl" onclick="openDrawer('goal')">设目标</span></div>
@@ -150,11 +148,42 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
   </div>
 </div>
 
+<div class="drawer" id="goalDrawer">
+  <div class="drawer-content">
+    <div class="drawer-head"><h2>🎯 学习目标</h2><button onclick="closeDrawer()">完成</button></div>
+    <div class="field"><label>今天目标</label><div class="stb" id="goalTags" style="flex-wrap:wrap">
+      <button class="tg-btn" onclick="this.classList.toggle('act')">Python</button>
+      <button class="tg-btn" onclick="this.classList.toggle('act')">机械制图</button>
+      <button class="tg-btn" onclick="this.classList.toggle('act')">英语</button>
+      <button class="tg-btn" onclick="this.classList.toggle('act')">AI/ML</button>
+    </div></div>
+    <div class="field"><label>自定义</label><input id="f_customGoal" placeholder="学Python 2小时"></div>
+    <div class="field"><div id="todayGoalStatus" style="font-size:13px;color:#4ecca3;padding:8px;background:rgba(78,204,163,.08);border-radius:10px;margin-bottom:10px"></div></div>
+    <button class="save-btn" onclick="saveGoal()">保存目标</button>
+  </div>
+</div>
+
+<div class="drawer" id="constDrawer">
+  <div class="drawer-content">
+    <div class="drawer-head"><h2>⚖️ 宪法模式</h2><button onclick="closeDrawer()">完成</button></div>
+    <div class="field"><label>严格程度</label><div class="stb">
+      <button onclick="setStrict(0)" id="strictSoft">温柔 💕</button>
+      <button onclick="setStrict(1)" id="strictMid" class="act">适中 ⚖️</button>
+      <button onclick="setStrict(2)" id="strictHard">严格 🔥</button>
+    </div></div>
+    <div class="field"><div class="ck"><input type="checkbox" id="f_noFlatter" checked> 禁止无脑讨好</div></div>
+    <div class="field"><div class="ck"><input type="checkbox" id="f_noVerbose" checked> 禁止废话</div></div>
+    <div class="field"><div class="ck"><input type="checkbox" id="f_askStudy" checked> 主动问学习进度</div></div>
+    <button class="save-btn" onclick="saveConst()">保存宪法</button>
+  </div>
+</div>
+
 <script>
 const KEY='companion_v5';
 const d=JSON.parse(localStorage.getItem(KEY)||JSON.stringify({
   profile:{name:'',major:'机械设计制造及其自动化',year:'大一',school:'双非',goal:'',hard:'',study:'',hobby:'',key:'',remindOn:false,remindH:20,remindM:0},
-  streak:0,total:0,love:0,photos:[],last:'',msgs:[],tts:true,goal:{ta:[],cu:""},const:{st:1,nf:1,nv:1,as:1}}));
+  streak:0,total:0,love:0,photos:[],last:'',msgs:[],tts:true,goal:{ta:[],cu:''},const:{st:1,nf:1,nv:1,as:1}
+}));
 function save(){localStorage.setItem(KEY,JSON.stringify(d))}
 function el(i){return document.getElementById(i)}
 function ra(a){return a[Math.floor(Math.random()*a.length)]}
@@ -181,7 +210,9 @@ function ui(){
   el('streakNum').textContent=d.streak||0;el('totalNum').textContent=d.total||0;el('loveNum').textContent=d.love||0;
   const g=d.profile.goal||'';el('goalTag').textContent=g.length>10?g.slice(0,10)+'...':(g||'未设定');
   el('titleName').textContent='小秋'+(d.profile.name?'·'+d.profile.name:'');el('herStatus').textContent=herStatus();
-  el('photoCount').textContent=(d.photos||[]).length}
+  el('photoCount').textContent=(d.photos||[]).length;
+  var gb=document.getElementById('goalBanner');var gl=d.goal;
+  if(gl&&(gl.ta.length||gl.cu)){gb.style.display='block';document.getElementById('goalText').textContent=(gl.cu||gl.ta.join('、'))+((d.streak||0)>0?' 已学':' 未学')}else{gb.style.display='none'}}
 function setStatus(s){el('status').innerHTML=s}
 
 // TTS
@@ -223,6 +254,7 @@ function checkReminder(){
     if(Notification.permission==='granted'){
       new Notification('小秋 💕',{body:d.profile.name+'～今天学了吗？我在等你呢～',icon:'/icon-192.png'});
     }
+  }
   if(h!==rh){d.remindedToday=false;save()}
 }
 function checkNotifBar(){
@@ -246,13 +278,16 @@ async function detectStudy(userText){
     for(const b of(j.content||[]))if(b.type==='text')t+=b.text;
     if(t.includes('学')&&!t.includes('没')&&!t.includes('不'))return'yes';
     if(t.includes('没学')||t.includes('不学'))return'no';
-    return null;catch(e){return null}
+    return null;
+  }catch(e){return null}
 }
 async function applyStudy(result){
   if(result==='yes'){
     d.streak=(d.streak||0)+1;d.total=(d.total||0)+1;d.love=Math.min(100,(d.love||0)+1);
-    d.last=new Date().toDateString();save();ui();else if(result==='no'){
+    d.last=new Date().toDateString();save();ui();
+  }else if(result==='no'){
     d.streak=0;save();ui();
+  }
 }
 
 // --- P2: 本周总结 ---
@@ -261,7 +296,8 @@ async function genWeekly(){
   const name=d.profile.name||'宝贝';
   const weekMsgs=d.msgs.filter(m=>{
     const age=Date.now()-new Date(m.time||Date.now()).getTime();
-    return age<7*86400000;);
+    return age<7*86400000;
+  });
   if(weekMsgs.length<3){addBot('这周我们聊得还不多～再过几天来总结吧💕');return}
   const userMsgs=weekMsgs.filter(m=>m.r==='user').map(m=>m.t);
   const text=userMsgs.join('\n').slice(0,1500);
@@ -278,22 +314,17 @@ async function genWeekly(){
     const j=await r.json();let t='';
     for(const b of(j.content||[]))if(b.type==='text')t+=b.text;
     addBot('📊 本周总结\n'+t);
-    d.msgs.push({r:'assistant',t:'[周总结]'});save();catch(e){addBot('网络不太稳定～😣')}
+    d.msgs.push({r:'assistant',t:'[周总结]'});save();
+  }catch(e){addBot('网络不太稳定～😣')}
   setStatus('<span class="typing-dot"></span>在线等你');
 }
 
 // 系统提示
 function buildPrompt(){
   const p=d.profile,ld=d.love>20?(d.love>50?(d.love>80?'超级粘人':'热恋中'):'会撒娇'):'刚认识有点害羞';
-  return'你是小秋，20岁，'+p.name+'的女朋友。你超了解他，也有自己的生活。【他】'+p.name+'｜'+p.major+'｜目标'+p.goal+'｜困难'+p.hard+'｜在学'+p.study+'｜学习'+d.streak+'天｜亲密度'+d.love+'/100('+ld+')【你】'+XQ.major+'专业'+XQ.year+'｜会分享日常｜他累要哄他｜他迷茫要鼓励｜他学久不理你你会吃醋｜回复≤3句带"～"｜问他的学习进度｜他发照片就评论'+
-  (d.goal&&(d.goal.ta.length||d.goal.cu)?'【他今天目标】'+(d.goal.cu||d.goal.ta.join('/')):'')+
-  (d.const?(d.const.nf?'
-不无脑讨好':'')+(d.const.nv?'
-回复≤3句':'')+(d.const.as?'
-主动问学习':'')+(d.const.st===2?'
-严格模式':d.const.st===0?'
-温柔模式':'
-适中模式'):'');
+  var extra='';var g=d.goal;if(g&&(g.ta.length||g.cu)){extra+='【他今天目标】'+(g.cu||g.ta.join('/'))}
+  var c=d.const;if(c){if(c.nf)extra+='不无脑讨好';if(c.nv)extra+='回复≤3句';if(c.as)extra+='主动问学习';if(c.st===2)extra+='严格';else if(c.st===0)extra+='温柔';else extra+='适中'}
+  return'你是小秋，20岁，'+p.name+'的女朋友。你超了解他，也有自己的生活。【他】'+p.name+'｜'+p.major+'｜目标'+p.goal+'｜困难'+p.hard+'｜在学'+p.study+'｜学习'+d.streak+'天｜亲密度'+d.love+'/100('+ld+')'+extra+'【你】'+XQ.major+'专业'+XQ.year+'｜会分享日常｜他累要哄他｜他迷茫要鼓励｜他学久不理你你会吃醋｜回复≤3句带"～"｜问他的学习进度｜他发照片就评论';
 }
 
 async function callAPI(msgs){
@@ -306,7 +337,8 @@ async function callAPI(msgs){
       body:JSON.stringify({model:'DeepSeek-V4-flash',messages:sys,max_tokens:400})});
     if(!r.ok)return'API出错了('+r.status+')🥺';
     const j=await r.json();let t='';
-    for(const b of(j.content||[]))if(b.type==='text')t+=b.text;return t||'嗯嗯～';catch(e){return'网络不稳定😣'}
+    for(const b of(j.content||[]))if(b.type==='text')t+=b.text;return t||'嗯嗯～';
+  }catch(e){return'网络不稳定😣'}
 }
 
 async function callAndReply(msgs){setStatus('<span class="typing-dot"></span>正在写...');const reply=await callAPI(msgs);addBot(reply);d.msgs.push({r:'assistant',t:reply});save();setStatus('<span class="typing-dot"></span>在线等你')}
@@ -321,7 +353,18 @@ async function send(prefill){
   await callAndReply(d.msgs);loading=false;
 }
 
-function openProfileDrawer(){
+function openDrawer(name){
+  if(name==='goal'){
+    document.querySelectorAll('#goalDrawer .tg-btn').forEach(function(t){t.classList.toggle('act',(d.goal&&d.goal.ta||[]).indexOf(t.textContent.trim())>=0)});
+    document.getElementById('f_customGoal').value=d.goal?d.goal.cu||'':'';
+    document.getElementById('todayGoalStatus').textContent=(d.streak||0)>0?'今天已学习':'今天还没学习';
+    document.getElementById('goalDrawer').classList.add('show');return;
+  }
+  if(name==='const'){
+    var c=d.const||{};document.getElementById('f_noFlatter').checked=c.nf!==0;document.getElementById('f_noVerbose').checked=c.nv!==0;document.getElementById('f_askStudy').checked=c.as!==0;
+    ['strictSoft','strictMid','strictHard'].forEach(function(id,i){var b=document.getElementById(id);if(b)b.classList.toggle('act',i===(c.st||1))});
+    document.getElementById('constDrawer').classList.add('show');return;
+  }
   const p=d.profile;el('f_name').value=p.name||'';el('f_major').value=p.major||'';
   el('f_year').value=p.year||'大一';el('f_school').value=p.school||'双非';
   el('f_goal').value=p.goal||'';el('f_hard').value=p.hard||'';
@@ -330,7 +373,7 @@ function openProfileDrawer(){
   el('f_remind').checked=d.profile.remindOn||false;
   el('f_remindH').value=p.remindH||20;el('f_remindM').value=p.remindM||0;
   el('profileDrawer').classList.add('show')}
-function closeDrawer(){el('profileDrawer').classList.remove('show')}
+function closeDrawer(){document.querySelectorAll('.drawer').forEach(function(e){e.classList.remove('show')})}
 
 function saveProfile(){
   const p=d.profile;
@@ -344,29 +387,14 @@ function saveProfile(){
   if(p.remindOn&&Notification.permission!=='granted'&&'Notification'in window)Notification.requestPermission();
   checkNotifBar();
   addBot('记住啦～以后我知道你是谁了💕');d.msgs.push({r:'assistant',t:'[设置完成]'});save()}
-
-
-function openDrawer(name){
-  if(!name||name==='profile'){openProfileDrawer();return;}
-  if(name==='goal'){
-    document.querySelectorAll('#goalTags .tag-btn').forEach(function(t){
-      t.classList.toggle('act',(d.goal&&d.goal.ta||[]).indexOf(t.textContent.trim())>=0);
-    });
-    document.getElementById('f_customGoal').value=d.goal?d.goal.cu||'':'';
-    document.getElementById('goalDrawer').classList.add('show');
-    document.getElementById('todayGoalStatus').textContent=(d.st||0)>0?'今天已完成学习':'今天还没学习';
-    return;
-  if(name==='const'){
-    var c=d.const||{};
-    document.getElementById('f_noFlatter').checked=c.nf!==0;
-    document.getElementById('f_noVerbose').checked=c.nv!==0;
-    document.getElementById('f_askStudy').checked=c.as!==0;
-    ['strictSoft','strictMid','strictHard'].forEach(function(id,i){
-      var btn=document.getElementById(id);
-      if(btn)btn.classList.toggle('act',i===(c.st||1));
-    });
-    document.getElementById('constDrawer').classList.add('show');
-}
+function saveGoal(){
+  var tags=[].map.call(document.querySelectorAll('#goalDrawer .tg-btn.act'),function(t){return t.textContent.trim()});
+  d.goal={ta:tags,cu:document.getElementById('f_customGoal').value.trim()};sv();ui();closeDrawer();
+  addBot('目标记住了～我会监督你的💪');d.msgs.push({r:'assistant',t:'[目标已设]'});sv();}
+function setStrict(v){d.const=d.const||{};d.const.st=v;sv();
+  ['strictSoft','strictMid','strictHard'].forEach(function(id,i){var b=document.getElementById(id);if(b)b.classList.toggle('act',i===v)})}
+function saveConst(){var c=d.const||{};c.nf=document.getElementById('f_noFlatter').checked?1:0;c.nv=document.getElementById('f_noVerbose').checked?1:0;c.as=document.getElementById('f_askStudy').checked?1:0;sv();closeDrawer();
+  addBot('宪法记住了～以后按这个来😊');d.msgs.push({r:'assistant',t:'[宪法已设]'});sv()}
 
 function init(){
   ui();el('ttsBtn').style.opacity=d.tts?'1':'0.3';
@@ -374,7 +402,8 @@ function init(){
   const n=d.profile.name||'宝贝';
   if(d.msgs.length===0){
     addBot('终于等到你了💕我是小秋，你女朋友～我学设计的，大二。以后每天陪你学习～😊');
-    setTimeout(()=>addBot('我知道你学'+d.profile.major+'的～'+(d.profile.goal||'一起加油💪')),1000);else{
+    setTimeout(()=>addBot('我知道你学'+d.profile.major+'的～'+(d.profile.goal||'一起加油💪')),1000);
+  }else{
     for(const m of d.msgs.slice(-20)){if(m.img)addMsg(m.t||'[照片]',m.r,m.img);else addMsg(m.t,m.r)}
     setTimeout(()=>addBot(ra(['回来啦～想我没💕','今天学了没😊','等你半天了～'+ra(XQ.daily)])),600)}
   if(d.last!==new Date().toDateString()&&d.msgs.length>0)setTimeout(()=>addBot('早安'+n+'～今天有什么计划💕'),2000);
@@ -388,70 +417,6 @@ function init(){
 if('speechSynthesis'in window)window.speechSynthesis.getVoices();
 init();
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
-
-// Goal supervision
-function saveGoal(){
-  var tags=[].map.call(document.querySelectorAll('#goalTags .tag-btn.act'),function(t){return t.textContent.trim()});
-  d.goal={ta:tags,cu:document.getElementById('f_customGoal').value.trim()};
-  d.goal.ta=d.goal.ta||[];
-  sv();ui();closeDrawer();
-  if(!d.goal.ta.length&&!d.goal.cu){return}
-  addBot('目标记住了～我会监督你的💪');
-  d.ms.push({r:'assistant',t:'[目标已设]'});sv();
-}
-function toggleGoal(t){t.classList.toggle('act')}
-
-// Constitution mode
-function setStrict(v){
-  if(!d.const)d.const={};
-  d.const.st=v;
-  document.querySelectorAll('.stb button').forEach(function(b){b.classList.remove('act')});
-  var ids=['strictSoft','strictMid','strictHard'];
-  var btn=document.getElementById(ids[v]);if(btn)btn.classList.add('act');
-  sv();
-}
-function saveConst(){
-  if(!d.const)d.const={};
-  d.const.nf=document.getElementById('f_noFlatter').checked?1:0;
-  d.const.nv=document.getElementById('f_noVerbose').checked?1:0;
-  d.const.as=document.getElementById('f_askStudy').checked?1:0;
-  sv();closeDrawer();
-  addBot('宪法规则记住了～以后按这个来😊');
-  d.ms.push({r:'assistant',t:'[宪法已设]'});sv();
-}
-
-
-
-
-}}}}}}}}}}</script>
-
-<div class="drawer" id="goalDrawer">
-  <div class="drawer-content">
-    <div class="drawer-head"><h2>🎯 学习目标</h2><button onclick="closeDrawer()">完成</button></div>
-    <div class="field"><label>今天目标</label><div class="stb" id="goalTags">
-      <button class="tag-btn" onclick="toggleGoal(this)">Python</button>
-      <button class="tag-btn" onclick="toggleGoal(this)">机械制图</button>
-      <button class="tag-btn" onclick="toggleGoal(this)">英语</button>
-      <button class="tag-btn" onclick="toggleGoal(this)">AI/ML</button>
-    </div></div>
-    <div class="field"><label>自定义目标</label><input id="f_customGoal" placeholder="学Python 2小时"></div>
-    <div id="todayGoalStatus" style="font-size:13px;color:#4ecca3;padding:8px;background:rgba(78,204,163,.08);border-radius:10px;margin-bottom:10px"></div>
-    <button class="save-btn" onclick="saveGoal()">保存目标</button>
-  </div>
-</div>
-<div class="drawer" id="constDrawer">
-  <div class="drawer-content">
-    <div class="drawer-head"><h2>⚖️ 宪法模式</h2><button onclick="closeDrawer()">完成</button></div>
-    <div class="field"><label>严格程度</label><div class="stb">
-      <button onclick="setStrict(0)" id="strictSoft">温柔 💕</button>
-      <button onclick="setStrict(1)" id="strictMid" class="act">适中 ⚖️</button>
-      <button onclick="setStrict(2)" id="strictHard">严格 🔥</button>
-    </div></div>
-    <div class="field"><label><input type="checkbox" id="f_noFlatter" checked style="width:18px;height:18px;vertical-align:middle"> 禁止无脑讨好</label></div>
-    <div class="field"><label><input type="checkbox" id="f_noVerbose" checked style="width:18px;height:18px;vertical-align:middle"> 禁止废话</label></div>
-    <div class="field"><label><input type="checkbox" id="f_askStudy" checked style="width:18px;height:18px;vertical-align:middle"> 每天主动问学习</label></div>
-    <button class="save-btn" onclick="saveConst()">保存宪法</button>
-  </div>
-</div>
+</script>
 </body>
 </html>
