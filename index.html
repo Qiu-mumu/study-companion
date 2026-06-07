@@ -341,13 +341,6 @@ function buildPrompt(){
   var c=d.const;if(c){if(c.nf)extra+='不无脑讨好';if(c.nv)extra+='回复≤3句';if(c.as)extra+='主动问学习';if(c.st===2)extra+='严格';else if(c.st===0)extra+='温柔';else extra+='适中'}
   return'你是小秋，20岁，'+p.name+'的女朋友。你超了解他，也有自己的生活。【他】'+p.name+'｜'+p.major+'｜目标'+p.goal+'｜困难'+p.hard+'｜在学'+p.study+'｜学习'+d.streak+'天｜亲密度'+d.love+'/100('+ld+')'+extra+'【你】'+XQ.major+'专业'+XQ.year+'｜会分享日常｜他累要哄他｜他迷茫要鼓励｜他学久不理你你会吃醋｜回复≤3句带"～"｜问他的学习进度｜他发照片就评论'+(d.xq&&d.xq.personality?'【性格】'+d.xq.personality:'')+(d.mem&&d.mem.length?'【记住】'+d.mem.map(function(m){return m.text}).join('；'):'');
 }
-// auto memory: extract facts from conversation, fully isolated
-async function autoMem(txt){try{if(!txt||txt.length<3)return;var k=d.profile.key;if(!k)return;
-var r=await fetch('https://api.deepseek.com/anthropic/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'DeepSeek-V4-flash',messages:[{role:'user',content:'提取关于用户的事实10字内:'+txt}],max_tokens:50})});
-if(!r.ok)return;var j=await r.json();var t='';for(var b of j.content||[]){if(b.type==='text')t+=b.text;}
-t=t.trim();if(!t||t.length>30)return;d.mem=d.mem||[];if(d.mem.some(function(m){return m.text===t}))return;
-d.mem.push({text:t,time:new Date().toISOString().slice(0,10)});if(d.mem.length>50)d.mem.shift();sv();
-}catch(e){}}
 
 async function callAPI(msgs){
   const key=d.profile.key;if(!key)return"点⚙️设API密钥～";
@@ -368,13 +361,11 @@ async function callAndReply(msgs){setStatus('<span class="typing-dot"></span>正
 let loading=false;
 async function send(prefill){
   const inp=el('input');const t=prefill||inp.value.trim();if(!t||loading)return;inp.value='';loading=true;
-  try{
   addUser(t);d.msgs.push({r:'user',t,time:new Date().toISOString()});save();
+  // AI检测是否学了
   const studyResult=await detectStudy(t);
   if(studyResult)applyStudy(studyResult);
-  await callAndReply(d.msgs);
-  }finally{loading=false;}
-  if(t&&t.length>3)setTimeout(function(){autoMem(t);},100);
+  await callAndReply(d.msgs);loading=false;
 }
 
 function openDrawer(name){
