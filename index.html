@@ -371,7 +371,7 @@ async function extractMemory(userText,replyText){
       method:'POST',headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01'},
       body:JSON.stringify({model:'DeepSeek-V4-flash',messages:[{role:'user',content:'从对话中提取关于用户的事实。每条10字内。已有事实：'+existing+'。对话：用户说"'+userText+'" 你回"'+replyText+'"。只输出新事实，没有就不输出，每条一行。'}],max_tokens:200})});
     if(!r.ok)return;var j=await r.json();var t='';for(var b of j.content||[]){if(b.type==='text')t+=b.text;}
-    t.split('
+    t.split(String.fromCharCode(10)).forEach(function(l){l=l.trim();if(l&&!existing.includes(l))addFact(l);}); 
 ').forEach(function(line){line=line.trim();if(line&&line.length<30&&existing.indexOf(line)<0)addFact(line);});
   }catch(e){}
 }
@@ -397,7 +397,7 @@ async function callAPI(msgs){
   }catch(e){return'网络不稳定😣'}
 }
 
-async function callAndReply(msgs){setStatus('<span class="typing-dot"></span>正在写...');const reply=await callAPI(msgs);addBot(reply);d.msgs.push({r:'assistant',t:reply,time:new Date().toISOString()});save();if(msgs.length>0){var lastUser=msgs.filter(function(m){return m.r==='user';}).pop();if(lastUser&&lastUser.t)extractMemory(lastUser.t,reply);}setStatus('<span class="typing-dot"></span>在线等你')}
+async function callAndReply(msgs){setStatus('<span class="typing-dot"></span>正在写...');const reply=await callAPI(msgs);addBot(reply);d.msgs.push({r:'assistant',t:reply,time:new Date().toISOString()});save();if(msgs.length>0){var lastUser=msgs.filter(function(m){return m.r==='user';}).pop();if(lastUser&&lastUser.t)await extractMemory(lastUser.t,reply);}setStatus('<span class="typing-dot"></span>在线等你')}
 
 let loading=false;
 async function send(prefill){
@@ -476,8 +476,8 @@ function setStrict(v){d.const=d.const||{};d.const.st=v;sv();
 function saveConst(){var c=d.const||{};c.nf=document.getElementById('f_noFlatter').checked?1:0;c.nv=document.getElementById('f_noVerbose').checked?1:0;c.as=document.getElementById('f_askStudy').checked?1:0;sv();closeDrawer();
   addBot('宪法记住了～以后按这个来😊');d.msgs.push({r:'assistant',t:'[宪法已设]'});sv()}
 
-function init()getAllFacts().then(function(f){window._memFacts=f;});
-  {
+function init(){
+  getAllFacts().then(function(f){window._memFacts=f;});
   ui();el('ttsBtn').style.opacity=d.tts?'1':'0.3';
   if(!d.profile.key){addBot('嗨～我是小秋💕点⚙️设一下信息，我才能认识你～');return}
   const n=d.profile.name||'宝贝';
@@ -496,7 +496,7 @@ function init()getAllFacts().then(function(f){window._memFacts=f;});
 }
 
 if('speechSynthesis'in window)window.speechSynthesis.getVoices();
-init();
+try{init();}catch(e){console.error(e);}
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
