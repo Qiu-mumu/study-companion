@@ -78,7 +78,7 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
     <p id="status"><span class="typing-dot"></span>在线等你</p>
     <p class="sub" id="herStatus">🎨 设计系大二</p>
   </div>
-  <button class="tool-btn" onclick="openDrawer()" style="width:36px;height:36px;font-size:18px">⚙️</button>
+  <button class="tool-btn" onclick="openProfileDrawer()" style="width:36px;height:36px;font-size:18px">⚙️</button>
 </div>
 <div class="notif-bar" id="notifBar">🔔 已开启每晚提醒</div>
 <div class="gb" id="goalBanner">📋 <span id="goalText">今日目标未设定</span><span class="gl" onclick="openDrawer('goal')">设目标</span></div>
@@ -223,7 +223,6 @@ function checkReminder(){
     if(Notification.permission==='granted'){
       new Notification('小秋 💕',{body:d.profile.name+'～今天学了吗？我在等你呢～',icon:'/icon-192.png'});
     }
-  }
   if(h!==rh){d.remindedToday=false;save()}
 }
 function checkNotifBar(){
@@ -247,16 +246,13 @@ async function detectStudy(userText){
     for(const b of(j.content||[]))if(b.type==='text')t+=b.text;
     if(t.includes('学')&&!t.includes('没')&&!t.includes('不'))return'yes';
     if(t.includes('没学')||t.includes('不学'))return'no';
-    return null;
-  }catch(e){return null}
+    return null;catch(e){return null}
 }
 async function applyStudy(result){
   if(result==='yes'){
     d.streak=(d.streak||0)+1;d.total=(d.total||0)+1;d.love=Math.min(100,(d.love||0)+1);
-    d.last=new Date().toDateString();save();ui();
-  }else if(result==='no'){
+    d.last=new Date().toDateString();save();ui();else if(result==='no'){
     d.streak=0;save();ui();
-  }
 }
 
 // --- P2: 本周总结 ---
@@ -265,8 +261,7 @@ async function genWeekly(){
   const name=d.profile.name||'宝贝';
   const weekMsgs=d.msgs.filter(m=>{
     const age=Date.now()-new Date(m.time||Date.now()).getTime();
-    return age<7*86400000;
-  });
+    return age<7*86400000;);
   if(weekMsgs.length<3){addBot('这周我们聊得还不多～再过几天来总结吧💕');return}
   const userMsgs=weekMsgs.filter(m=>m.r==='user').map(m=>m.t);
   const text=userMsgs.join('\n').slice(0,1500);
@@ -283,15 +278,22 @@ async function genWeekly(){
     const j=await r.json();let t='';
     for(const b of(j.content||[]))if(b.type==='text')t+=b.text;
     addBot('📊 本周总结\n'+t);
-    d.msgs.push({r:'assistant',t:'[周总结]'});save();
-  }catch(e){addBot('网络不太稳定～😣')}
+    d.msgs.push({r:'assistant',t:'[周总结]'});save();catch(e){addBot('网络不太稳定～😣')}
   setStatus('<span class="typing-dot"></span>在线等你');
 }
 
 // 系统提示
 function buildPrompt(){
   const p=d.profile,ld=d.love>20?(d.love>50?(d.love>80?'超级粘人':'热恋中'):'会撒娇'):'刚认识有点害羞';
-  return'你是小秋，20岁，'+p.name+'的女朋友。你超了解他，也有自己的生活。【他】'+p.name+'｜'+p.major+'｜目标'+p.goal+'｜困难'+p.hard+'｜在学'+p.study+'｜学习'+d.streak+'天｜亲密度'+d.love+'/100('+ld+')【你】'+XQ.major+'专业'+XQ.year+'｜会分享日常｜他累要哄他｜他迷茫要鼓励｜他学久不理你你会吃醋｜回复≤3句带"～"｜问他的学习进度｜他发照片就评论';
+  return'你是小秋，20岁，'+p.name+'的女朋友。你超了解他，也有自己的生活。【他】'+p.name+'｜'+p.major+'｜目标'+p.goal+'｜困难'+p.hard+'｜在学'+p.study+'｜学习'+d.streak+'天｜亲密度'+d.love+'/100('+ld+')【你】'+XQ.major+'专业'+XQ.year+'｜会分享日常｜他累要哄他｜他迷茫要鼓励｜他学久不理你你会吃醋｜回复≤3句带"～"｜问他的学习进度｜他发照片就评论'+
+  (d.goal&&(d.goal.ta.length||d.goal.cu)?'【他今天目标】'+(d.goal.cu||d.goal.ta.join('/')):'')+
+  (d.const?(d.const.nf?'
+不无脑讨好':'')+(d.const.nv?'
+回复≤3句':'')+(d.const.as?'
+主动问学习':'')+(d.const.st===2?'
+严格模式':d.const.st===0?'
+温柔模式':'
+适中模式'):'');
 }
 
 async function callAPI(msgs){
@@ -304,8 +306,7 @@ async function callAPI(msgs){
       body:JSON.stringify({model:'DeepSeek-V4-flash',messages:sys,max_tokens:400})});
     if(!r.ok)return'API出错了('+r.status+')🥺';
     const j=await r.json();let t='';
-    for(const b of(j.content||[]))if(b.type==='text')t+=b.text;return t||'嗯嗯～';
-  }catch(e){return'网络不稳定😣'}
+    for(const b of(j.content||[]))if(b.type==='text')t+=b.text;return t||'嗯嗯～';catch(e){return'网络不稳定😣'}
 }
 
 async function callAndReply(msgs){setStatus('<span class="typing-dot"></span>正在写...');const reply=await callAPI(msgs);addBot(reply);d.msgs.push({r:'assistant',t:reply});save();setStatus('<span class="typing-dot"></span>在线等你')}
@@ -320,7 +321,7 @@ async function send(prefill){
   await callAndReply(d.msgs);loading=false;
 }
 
-function openDrawer(){
+function openProfileDrawer(){
   const p=d.profile;el('f_name').value=p.name||'';el('f_major').value=p.major||'';
   el('f_year').value=p.year||'大一';el('f_school').value=p.school||'双非';
   el('f_goal').value=p.goal||'';el('f_hard').value=p.hard||'';
@@ -344,14 +345,36 @@ function saveProfile(){
   checkNotifBar();
   addBot('记住啦～以后我知道你是谁了💕');d.msgs.push({r:'assistant',t:'[设置完成]'});save()}
 
+
+function openDrawer(name){
+  if(!name||name==='profile'){openProfileDrawer();return;}
+  if(name==='goal'){
+    document.querySelectorAll('#goalTags .tag-btn').forEach(function(t){
+      t.classList.toggle('act',(d.goal&&d.goal.ta||[]).indexOf(t.textContent.trim())>=0);
+    });
+    document.getElementById('f_customGoal').value=d.goal?d.goal.cu||'':'';
+    document.getElementById('goalDrawer').classList.add('show');
+    document.getElementById('todayGoalStatus').textContent=(d.st||0)>0?'今天已完成学习':'今天还没学习';
+    return;
+  if(name==='const'){
+    var c=d.const||{};
+    document.getElementById('f_noFlatter').checked=c.nf!==0;
+    document.getElementById('f_noVerbose').checked=c.nv!==0;
+    document.getElementById('f_askStudy').checked=c.as!==0;
+    ['strictSoft','strictMid','strictHard'].forEach(function(id,i){
+      var btn=document.getElementById(id);
+      if(btn)btn.classList.toggle('act',i===(c.st||1));
+    });
+    document.getElementById('constDrawer').classList.add('show');
+}
+
 function init(){
   ui();el('ttsBtn').style.opacity=d.tts?'1':'0.3';
   if(!d.profile.key){addBot('嗨～我是小秋💕点⚙️设一下信息，我才能认识你～');return}
   const n=d.profile.name||'宝贝';
   if(d.msgs.length===0){
     addBot('终于等到你了💕我是小秋，你女朋友～我学设计的，大二。以后每天陪你学习～😊');
-    setTimeout(()=>addBot('我知道你学'+d.profile.major+'的～'+(d.profile.goal||'一起加油💪')),1000);
-  }else{
+    setTimeout(()=>addBot('我知道你学'+d.profile.major+'的～'+(d.profile.goal||'一起加油💪')),1000);else{
     for(const m of d.msgs.slice(-20)){if(m.img)addMsg(m.t||'[照片]',m.r,m.img);else addMsg(m.t,m.r)}
     setTimeout(()=>addBot(ra(['回来啦～想我没💕','今天学了没😊','等你半天了～'+ra(XQ.daily)])),600)}
   if(d.last!==new Date().toDateString()&&d.msgs.length>0)setTimeout(()=>addBot('早安'+n+'～今天有什么计划💕'),2000);
@@ -373,7 +396,7 @@ function saveGoal(){
   d.goal.ta=d.goal.ta||[];
   sv();ui();closeDrawer();
   if(!d.goal.ta.length&&!d.goal.cu){return}
-  addMsgBot('目标记住了～我会监督你的💪');
+  addBot('目标记住了～我会监督你的💪');
   d.ms.push({r:'assistant',t:'[目标已设]'});sv();
 }
 function toggleGoal(t){t.classList.toggle('act')}
@@ -393,65 +416,14 @@ function saveConst(){
   d.const.nv=document.getElementById('f_noVerbose').checked?1:0;
   d.const.as=document.getElementById('f_askStudy').checked?1:0;
   sv();closeDrawer();
-  addMsgBot('宪法规则记住了～以后按这个来😊');
+  addBot('宪法规则记住了～以后按这个来😊');
   d.ms.push({r:'assistant',t:'[宪法已设]'});sv();
 }
 
-// Modify openDrawer to handle goal and const
-var origOpen=window.openDrawer;
-window.openDrawer=function(name){
-  if(name==='goal'){
-    document.querySelectorAll('#goalTags .tag-btn').forEach(function(t){
-      t.classList.toggle('act',(d.goal&&d.goal.ta||[]).indexOf(t.textContent.trim())>=0);
-    });
-    document.getElementById('f_customGoal').value=d.goal?d.goal.cu||'':'';
-    document.getElementById('goalDrawer').classList.add('show');
-    var st=document.getElementById('todayGoalStatus');
-    if(st)st.textContent=(d.st||0)>0?'✅ 今天已完成学习！':'⏳ 今天还没学习～';
-    return;
-  }
-  if(name==='const'){
-    var c=d.const||{};
-    document.getElementById('f_noFlatter').checked=c.nf!==0;
-    document.getElementById('f_noVerbose').checked=c.nv!==0;
-    document.getElementById('f_askStudy').checked=c.as!==0;
-    ['strictSoft','strictMid','strictHard'].forEach(function(id,i){
-      var btn=document.getElementById(id);
-      if(btn)btn.classList.toggle('act',i===(c.st||1));
-    });
-    document.getElementById('constDrawer').classList.add('show');
-    return;
-  }
-  if(origOpen)origOpen(name);
-};
 
-// Modify buildPrompt to include goals and constitution
-var origBP=window.buildPrompt;
-window.buildPrompt=function(){
-  var base=origBP?origBP():"";
-  var goalText='';
-  if(d.goal&&(d.goal.ta.length||d.goal.cu)){
-    goalText='
-【他今天的目标】'+(d.goal.cu||d.goal.ta.join('/'));
-  }
-  var constText='';
-  var c=d.const||{};
-  if(c.nf)constText+='
--不要无脑讨好，不对要说出来';
-  if(c.nv)constText+='
--回复不超过3句话';
-  if(c.as)constText+='
--每天主动问他学习进度';
-  if(c.st===2)constText+='
--严格模式：他不学就批评';
-  else if(c.st===0)constText+='
--温柔模式：不学就哄哄他';
-  else constText+='
--适中模式：该夸夸该说说';
-  return base+goalText+constText;
-};
 
-</script>
+
+}}}}}}}}}}</script>
 
 <div class="drawer" id="goalDrawer">
   <div class="drawer-content">
